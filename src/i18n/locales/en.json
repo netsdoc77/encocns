@@ -1,0 +1,23 @@
+{
+  "translation": {
+    "header": {
+      "about": "About Us",
+      "business": "Business",
+      "solution": "Solution",
+      "projects": "Projects",
+      "news": "News",
+      "careers": "Careers",
+      "contact": "Contact Us"
+    },
+    "hero": {
+      "title": "Data Driven Finance Technology",
+      "subtitle": "ENCOCNS provides innovative data-driven IT solutions for finance.",
+      "primaryBtn": "View Solutions",
+      "secondaryBtn": "Contact Us"
+    },
+    "footer": {
+      "desc": "Your Professional Financial IT Partner, ENCOCNS",
+      "copyright": "© 2026 ENCOCNS. All rights reserved."
+    }
+  }
+}

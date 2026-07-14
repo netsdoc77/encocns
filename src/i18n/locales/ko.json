@@ -1,0 +1,23 @@
+{
+  "translation": {
+    "header": {
+      "about": "회사소개",
+      "business": "사업소개",
+      "solution": "솔루션",
+      "projects": "프로젝트",
+      "news": "뉴스",
+      "careers": "채용",
+      "contact": "문의하기"
+    },
+    "hero": {
+      "title": "Data Driven Finance Technology",
+      "subtitle": "ENCOCNS는 데이터 기반의 혁신적인 금융 IT 솔루션을 제공합니다.",
+      "primaryBtn": "솔루션 보기",
+      "secondaryBtn": "문의하기"
+    },
+    "footer": {
+      "desc": "금융 IT 전문 파트너 ENCOCNS",
+      "copyright": "© 2026 ENCOCNS. All rights reserved."
+    }
+  }
+}
