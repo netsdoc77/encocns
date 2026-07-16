@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map</title>
+  <style>
+    body { margin: 0; padding: 0; overflow: hidden; background-color: transparent; }
+    .root_daum_roughmap { width: 100%; }
+    .daum_roughmap_bounding_rect { width: 100% !important; }
+  </style>
+</head>
+<body>
+  <div id="daumRoughmapContainer1784176273276" class="root_daum_roughmap root_daum_roughmap_landing"></div>
+  <script charset="UTF-8" class="daum_roughmap_loader_script" src="https://ssl.daumcdn.net/dmaps/map_js_init/roughmapLoader.js"></script>
+  <script charset="UTF-8">
+    function renderMap() {
+      var container = document.getElementById('daumRoughmapContainer1784176273276');
+      container.innerHTML = ''; // clear previous
+      new daum.roughmap.Lander({
+        "timestamp" : "1784176273276",
+        "key" : "rbgtwf2ocbe",
+        "mapWidth" : window.innerWidth,
+        "mapHeight" : "500"
+      }).render();
+    }
+
+    // Wait for the script to load
+    setTimeout(function() {
+      renderMap();
+    }, 500);
+
+    // Re-render on resize to keep it centered
+    var resizeTimer;
+    window.addEventListener('resize', function() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function() {
+        renderMap();
+      }, 300);
+    });
+  </script>
+</body>
+</html>
