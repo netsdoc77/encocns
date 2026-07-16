@@ -36,7 +36,7 @@ Please change the parent <Route path="${e}"> to <Route path="${e===`/`?`*`:`${e}
           new daum.roughmap.Lander({
             "timestamp" : "1584327102891",
             "key" : "xi7a",
-            "mapWidth" : "100%",
+            "mapWidth" : window.innerWidth,
             "mapHeight" : "500"
           }).render();
         }, 500);
