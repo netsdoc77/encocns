@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Variants } from 'framer-motion';
 import { 
@@ -30,13 +31,13 @@ export default function Solution() {
       tag: "CashFlow-Engine",
       title: <>기업의 모든 돈의 흐름을 한눈에,<br className="hidden md:block"/> 스마트한 통합 자금관리 솔루션</>,
       desc: "복잡한 자금 관리와 시각화, 이제 클릭 몇 번으로 끝냅니다.",
-      img: "/images/photo-1507679799987-c73779587ccf.jpg"
+      img: import.meta.env.BASE_URL + "images/photo-1507679799987-c73779587ccf.jpg"
     },
     framework: {
       tag: "ENCO FrameWork",
       title: <>안정적이고 확장 가능한<br className="hidden md:block"/> 금융 IT의 표준, ENCO FrameWork</>,
       desc: "대규모 금융 시스템 구축을 위한 완벽한 엔터프라이즈 아키텍처",
-      img: "/images/photo-1451187580459-43490279c0fa.jpg"
+      img: import.meta.env.BASE_URL + "images/photo-1451187580459-43490279c0fa.jpg"
     }
   };
 
@@ -45,7 +46,7 @@ export default function Solution() {
       title: '실시간 통합 모니터링',
       desc: '모든 은행 계좌와 자금 현황을 하나의 대시보드에서 실시간으로 확인',
       icon: <RiDashboard2Line size={32} />,
-      img: '/images/photo-1551288049-bebda4e38f71.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1551288049-bebda4e38f71.jpg",
       color: 'bg-blue-500',
       textColor: 'text-blue-500'
     },
@@ -53,7 +54,7 @@ export default function Solution() {
       title: '자동 자금일보 생성',
       desc: '수작업 없는 자동 수집으로 휴먼 에러 제로, 보고서 작성 시간 단축',
       icon: <RiFileList3Line size={32} />,
-      img: '/images/photo-1460925895917-afdab827c52f.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1460925895917-afdab827c52f.jpg",
       color: 'bg-indigo-500',
       textColor: 'text-indigo-500'
     },
@@ -61,7 +62,7 @@ export default function Solution() {
       title: 'AI 자금 예측',
       desc: '과거 패턴을 분석해 향후 자금 과부족을 미리 예측하고 대비',
       icon: <RiBrainLine size={32} />,
-      img: '/images/photo-1555066931-4365d14bab8c.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1555066931-4365d14bab8c.jpg",
       color: 'bg-purple-500',
       textColor: 'text-purple-500'
     },
@@ -69,7 +70,7 @@ export default function Solution() {
       title: '안전한 보안 통제',
       desc: '결재 라인 지정 및 권한 관리로 자금 사고 원천 차단',
       icon: <RiShieldKeyholeLine size={32} />,
-      img: '/images/photo-1563986768609-322da13575f3.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1563986768609-322da13575f3.jpg",
       color: 'bg-emerald-500',
       textColor: 'text-emerald-500'
     }
@@ -80,7 +81,7 @@ export default function Solution() {
       title: '표준화된 개발 환경',
       desc: '검증된 라이브러리와 공통 모듈을 통해 개발 생산성을 극대화합니다.',
       icon: <RiCodeBoxLine size={32} />,
-      img: '/images/photo-1498050108023-c5249f4df085.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1498050108023-c5249f4df085.jpg",
       color: 'bg-blue-500',
       textColor: 'text-blue-500'
     },
@@ -88,7 +89,7 @@ export default function Solution() {
       title: '대용량 분산 처리',
       desc: '금융권 특유의 대용량 트랜잭션에도 흔들림 없는 완벽한 안정성을 제공합니다.',
       icon: <RiServerLine size={32} />,
-      img: '/images/photo-1558494949-ef010cbdcc31.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1558494949-ef010cbdcc31.jpg",
       color: 'bg-indigo-500',
       textColor: 'text-indigo-500'
     },
@@ -96,7 +97,7 @@ export default function Solution() {
       title: 'MSA 아키텍처 지원',
       desc: '유연한 마이크로서비스 확장을 지원하여 비즈니스 변화에 민첩하게 대응합니다.',
       icon: <RiNodeTree size={32} />,
-      img: '/images/photo-1519389950473-47ba0277781c.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1519389950473-47ba0277781c.jpg",
       color: 'bg-purple-500',
       textColor: 'text-purple-500'
     },
@@ -104,7 +105,7 @@ export default function Solution() {
       title: '철저한 보안 프레임워크',
       desc: '민감한 금융 데이터를 보호하기 위한 다중 암호화 및 접근 제어 모듈이 내장되어 있습니다.',
       icon: <RiLockPasswordLine size={32} />,
-      img: '/images/photo-1550751827-4bd374c3f58b.jpg',
+      img: import.meta.env.BASE_URL + "images/photo-1550751827-4bd374c3f58b.jpg",
       color: 'bg-emerald-500',
       textColor: 'text-emerald-500'
     }
@@ -113,7 +114,7 @@ export default function Solution() {
   return (
     <div className="w-full font-sans">
       {/* Hero Section with Dynamic Content */}
-      <section className="relative h-[80vh] min-h-[600px] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0 bg-slate-900">
           <AnimatePresence mode="wait">
             <motion.img 
@@ -154,25 +155,25 @@ export default function Solution() {
       </section>
 
       {/* Sticky Tab Menu */}
-      <div className="w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 sticky top-[72px] z-40 shadow-sm transition-colors duration-300">
-        <div className="container mx-auto px-6">
-          <div className="flex justify-center gap-8 md:gap-16">
+      <div className="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-[64px] md:top-[72px] z-40 shadow-sm transition-colors duration-300">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex justify-center gap-6 md:gap-16">
             <button 
               onClick={() => setActiveTab('framework')}
-              className={`py-6 text-lg md:text-xl font-bold transition-all relative ${activeTab === 'framework' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              className={`py-4 md:py-6 text-base md:text-xl font-bold transition-all relative cursor-pointer whitespace-nowrap ${activeTab === 'framework' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
               ENCO FrameWork
               {activeTab === 'framework' && (
-                <motion.div layoutId="activeTabIndicator" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
+                <motion.div layoutId="activeTabIndicator" className="absolute -bottom-[1px] left-0 right-0 h-[3px] md:h-1 bg-primary rounded-t-full" />
               )}
             </button>
             <button 
               onClick={() => setActiveTab('cashflow')}
-              className={`py-6 text-lg md:text-xl font-bold transition-all relative ${activeTab === 'cashflow' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
+              className={`py-4 md:py-6 text-base md:text-xl font-bold transition-all relative cursor-pointer whitespace-nowrap ${activeTab === 'cashflow' ? 'text-primary' : 'text-slate-400 hover:text-slate-600 dark:hover:text-slate-300'}`}
             >
               CashFlow-Engine
               {activeTab === 'cashflow' && (
-                <motion.div layoutId="activeTabIndicator" className="absolute bottom-0 left-0 right-0 h-1 bg-primary rounded-t-full" />
+                <motion.div layoutId="activeTabIndicator" className="absolute -bottom-[1px] left-0 right-0 h-[3px] md:h-1 bg-primary rounded-t-full" />
               )}
             </button>
           </div>
@@ -276,49 +277,68 @@ export default function Solution() {
               </div>
             </section>
 
-            {/* Impact Section */}
-            <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
-              <div className="absolute inset-0 bg-primary/20 mix-blend-overlay"></div>
-              <div className="container mx-auto px-6 relative z-10">
-                <div className="text-center mb-24">
-                  <h2 className="text-4xl md:text-5xl font-black mb-6">압도적인 도입 효과</h2>
-                  <p className="text-xl text-slate-400">숫자로 증명하는 CashFlow-Engine의 가치</p>
-                </div>
+            {/* Impact Section (Redesigned) */}
+            <section className="py-32 lg:py-48 bg-slate-50 dark:bg-slate-900 relative overflow-hidden">
+              <div className="container mx-auto px-6 relative z-10 h-full flex flex-col justify-between">
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+                {/* Large Typography Area */}
+                <div className="mb-24 lg:mb-40 pt-10">
                   <motion.div 
-                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeIn}
-                    className="bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[2.5rem] text-center hover:-translate-y-2 transition-transform duration-300"
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="text-[3rem] sm:text-[4rem] md:text-[5rem] lg:text-[6.5rem] font-black text-slate-900 dark:text-white leading-[1.15] tracking-tight"
                   >
-                    <div className="text-7xl font-black text-blue-400 mb-6 flex justify-center items-baseline gap-1">
-                      80<span className="text-4xl font-bold">%</span>
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4">보고서 작성 시간 감소</h3>
-                    <p className="text-slate-400 leading-relaxed">수작업을 완전히 배제하여 업무 처리 시간을 획기적으로 줄입니다.</p>
-                  </motion.div>
-
-                  <motion.div 
-                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeIn} transition={{ delay: 0.2 }}
-                    className="bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[2.5rem] text-center hover:-translate-y-2 transition-transform duration-300"
-                  >
-                    <div className="text-7xl font-black text-green-400 mb-6 flex justify-center items-baseline gap-1">
-                      95<span className="text-4xl font-bold">%</span>
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4">자금 예측 정확도 향상</h3>
-                    <p className="text-slate-400 leading-relaxed">AI 기반의 과거 패턴 분석으로 현금 과부족을 정밀하게 진단합니다.</p>
-                  </motion.div>
-
-                  <motion.div 
-                    initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeIn} transition={{ delay: 0.4 }}
-                    className="bg-white/5 backdrop-blur-xl border border-white/10 p-12 rounded-[2.5rem] text-center hover:-translate-y-2 transition-transform duration-300"
-                  >
-                    <div className="text-7xl font-black text-primary mb-6 flex justify-center items-baseline gap-1">
-                      2<span className="text-4xl font-bold">배</span>
-                    </div>
-                    <h3 className="text-2xl font-bold mb-4">관리 업무 효율 증가</h3>
-                    <p className="text-slate-400 leading-relaxed">자동화 시스템 도입으로 핵심 재무 전략 수립에 집중할 수 있습니다.</p>
+                    Faster. Precise.<br/>
+                    Efficient. 
+                    <span className="inline-flex items-center ml-2 md:ml-4 align-middle relative mt-4 md:mt-0 isolate">
+                      <span className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-28 lg:h-28 flex items-center justify-center z-10 text-slate-900">
+                        <span 
+                          className="absolute inset-0 rounded-full mix-blend-multiply dark:mix-blend-screen shadow-lg opacity-90"
+                          style={{ background: 'radial-gradient(circle at 30% 30%, #FDE047, #EAB308)' }}
+                        />
+                        <span className="relative text-3xl md:text-5xl lg:text-6xl font-light">+</span>
+                      </span>
+                      <span className="relative h-14 sm:h-16 md:h-24 lg:h-28 flex items-center justify-center -ml-4 md:-ml-8 pl-10 md:pl-14 pr-8 md:pr-10 z-20 text-white">
+                        <span 
+                          className="absolute inset-0 rounded-full mix-blend-multiply dark:mix-blend-screen shadow-lg opacity-90"
+                          style={{ background: 'radial-gradient(circle at 30% 30%, #60A5FA, #2563EB)' }}
+                        />
+                        <span className="relative text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">CashFlow</span>
+                      </span>
+                    </span>
                   </motion.div>
                 </div>
+
+                {/* 3 Columns Area with Numbers */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-8">
+                  {[
+                    { value: "80", unit: "%", title: "보고서 작성 시간 감소", desc: "수작업을 완전히 배제하여 업무 처리 시간을 획기적으로 줄입니다." },
+                    { value: "95", unit: "%", title: "자금 예측 정확도 향상", desc: "AI 기반의 과거 패턴 분석으로 현금 과부족을 정밀하게 진단합니다." },
+                    { value: "2", unit: "배", title: "관리 업무 효율 증가", desc: "자동화 시스템 도입으로 핵심 재무 전략 수립에 집중할 수 있습니다." }
+                  ].map((val, idx) => (
+                    <motion.div 
+                      key={idx}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.15, duration: 0.6 }}
+                      className="relative pt-6"
+                    >
+                      <div className="absolute top-0 left-0 w-full h-[2px] bg-slate-200 dark:bg-slate-700/50"></div>
+                      <div className="flex items-baseline gap-1 mb-4">
+                        <span className="text-4xl md:text-5xl font-black text-primary">{val.value}</span>
+                        <span className="text-2xl font-bold text-slate-500 dark:text-slate-400">{val.unit}</span>
+                      </div>
+                      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{val.title}</h3>
+                      <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium break-keep pr-4">
+                        {val.desc}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+
               </div>
             </section>
           </motion.div>
@@ -421,27 +441,65 @@ export default function Solution() {
               </div>
             </section>
 
-            {/* Tech Stack or Impact */}
-            <section className="py-32 bg-slate-900 text-white relative overflow-hidden">
-              <div className="absolute inset-0 bg-primary/20 mix-blend-overlay"></div>
-              <div className="container mx-auto px-6 relative z-10">
-                <div className="text-center mb-20">
-                  <h2 className="text-4xl md:text-5xl font-black mb-6">검증된 레퍼런스</h2>
-                  <p className="text-xl text-slate-400">수많은 금융 기관이 ENCO FrameWork를 선택했습니다</p>
-                </div>
+            {/* Value Proposition Section (Redesigned) */}
+            <section className="py-32 lg:py-48 bg-slate-50 dark:bg-slate-900 relative overflow-hidden">
+              <div className="container mx-auto px-6 relative z-10 h-full flex flex-col justify-between">
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-                  {['안정성', '생산성', '보안성', '확장성'].map((value, idx) => (
+                {/* Large Typography Area */}
+                <div className="mb-24 lg:mb-40 pt-10">
+                  <motion.div 
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8 }}
+                    className="text-[3rem] sm:text-[4rem] md:text-[5rem] lg:text-[6.5rem] font-black text-slate-900 dark:text-white leading-[1.15] tracking-tight"
+                  >
+                    Stable. Productive.<br/>
+                    Secure. 
+                    <span className="inline-flex items-center ml-2 md:ml-4 align-middle relative mt-4 md:mt-0 isolate">
+                      <span className="relative w-14 h-14 sm:w-16 sm:h-16 md:w-24 md:h-24 lg:w-28 lg:h-28 flex items-center justify-center z-10 text-slate-900">
+                        <span 
+                          className="absolute inset-0 rounded-full mix-blend-multiply dark:mix-blend-screen shadow-lg opacity-90"
+                          style={{ background: 'radial-gradient(circle at 30% 30%, #FDE047, #EAB308)' }}
+                        />
+                        <span className="relative text-3xl md:text-5xl lg:text-6xl font-light">+</span>
+                      </span>
+                      <span className="relative h-14 sm:h-16 md:h-24 lg:h-28 flex items-center justify-center -ml-4 md:-ml-8 pl-10 md:pl-14 pr-8 md:pr-10 z-20 text-white">
+                        <span 
+                          className="absolute inset-0 rounded-full mix-blend-multiply dark:mix-blend-screen shadow-lg opacity-90"
+                          style={{ background: 'radial-gradient(circle at 30% 30%, #60A5FA, #2563EB)' }}
+                        />
+                        <span className="relative text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold">Scalable</span>
+                      </span>
+                    </span>
+                  </motion.div>
+                </div>
+
+                {/* 4 Columns Area */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8">
+                  {[
+                    { title: "Stable", desc: "수많은 금융권 프로젝트로 입증된 무결점 아키텍처 시스템" },
+                    { title: "Productive", desc: "검증된 공통 컴포넌트 제공으로 전체 개발 기간을 획기적으로 단축" },
+                    { title: "Secure", desc: "강력한 금융 규제(Compliance) 완벽 준수 및 데이터 보안 환경 보장" },
+                    { title: "+Scalable", desc: "마이크로서비스 아키텍처(MSA)를 통해 비즈니스 성장에 맞춘 무한한 확장" }
+                  ].map((val, idx) => (
                     <motion.div 
                       key={idx}
-                      initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeIn} transition={{ delay: idx * 0.1 }}
-                      className="bg-white/5 backdrop-blur-xl border border-white/10 p-10 rounded-[2rem] text-center hover:bg-white/10 transition-colors duration-300"
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: idx * 0.15, duration: 0.6 }}
+                      className="relative pt-6"
                     >
-                      <div className="text-2xl font-bold text-white mb-2">{value}</div>
-                      <div className="h-1 w-12 bg-primary mx-auto rounded-full mt-4"></div>
+                      <div className="absolute top-0 left-0 w-full h-[2px] bg-slate-200 dark:bg-slate-700/50"></div>
+                      <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">{val.title}</h3>
+                      <p className="text-slate-600 dark:text-slate-400 leading-relaxed font-medium break-keep pr-4">
+                        {val.desc}
+                      </p>
                     </motion.div>
                   ))}
                 </div>
+
               </div>
             </section>
           </motion.div>
@@ -453,9 +511,9 @@ export default function Solution() {
         <div className="container mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeIn} className="max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-10 leading-tight">이제 엔코씨앤에스와 함께<br className="hidden md:block"/> 혁신을 더하세요</h2>
-            <button className="bg-primary hover:bg-primary-dark text-white text-xl font-bold py-5 px-12 rounded-full shadow-2xl shadow-primary/30 transition-all duration-300 hover:scale-105 inline-flex items-center gap-3">
+            <Link to="/contact" className="bg-primary hover:bg-primary-dark text-white text-xl font-bold py-5 px-12 rounded-full shadow-2xl shadow-primary/30 transition-all duration-300 hover:scale-105 inline-flex items-center gap-3">
               도입 문의하기 <RiArrowRightSLine size={24} />
-            </button>
+            </Link>
           </motion.div>
         </div>
       </section>

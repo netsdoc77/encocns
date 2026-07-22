@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { RiDatabase2Line, RiBankLine, RiLineChartLine, RiShieldKeyholeLine } from '@remixicon/react';
+import AnimatedCounter from '../components/common/AnimatedCounter';
 
 export default function Home() {
   const { t } = useTranslation();
@@ -41,7 +42,7 @@ export default function Home() {
             playsInline 
             className="w-full h-full object-cover opacity-60"
           >
-            <source src="/hero-video.mp4" type="video/mp4" />
+            <source src={`${import.meta.env.BASE_URL}hero-video.mp4`} type="video/mp4" />
           </video>
           {/* Subtle gradient overlay to ensure text readability */}
           <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/60 to-transparent"></div>
@@ -77,19 +78,27 @@ export default function Home() {
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">2006</div>
+              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">
+                <AnimatedCounter from={2026} to={2006} duration={1.5} delay={0} />
+              </div>
               <div className="text-slate-600 dark:text-slate-400 font-bold">설립 연도</div>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} transition={{ delay: 0.1 }}>
-              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">50+</div>
+              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">
+                <AnimatedCounter from={0} to={50} suffix="+" duration={1.5} delay={0.3} />
+              </div>
               <div className="text-slate-600 dark:text-slate-400 font-bold">주요 프로젝트</div>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} transition={{ delay: 0.2 }}>
-              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">15+</div>
+              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">
+                <AnimatedCounter from={0} to={15} suffix="+" duration={1.5} delay={0.6} />
+              </div>
               <div className="text-slate-600 dark:text-slate-400 font-bold">금융권 고객사</div>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} transition={{ delay: 0.3 }}>
-              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">99%</div>
+              <div className="text-4xl md:text-5xl font-extrabold text-primary mb-2">
+                <AnimatedCounter from={0} to={99} suffix="%" duration={1.5} delay={0.9} />
+              </div>
               <div className="text-slate-600 dark:text-slate-400 font-bold">유지보수 만족도</div>
             </motion.div>
           </div>
@@ -127,11 +136,11 @@ export default function Home() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-24 bg-primary text-white text-center">
+      <section className="py-24 bg-slate-50 dark:bg-slate-900 text-center">
         <div className="container mx-auto px-6">
-          <h2 className="text-3xl md:text-4xl font-extrabold mb-6">성공적인 금융 혁신, ENCOCNS와 함께 하세요.</h2>
-          <p className="text-xl text-primary-light mb-10">전문가와 상담하여 맞춤형 솔루션을 제안받아보세요.</p>
-          <Link to="/contact" className="inline-block bg-white text-primary hover:bg-slate-100 px-8 py-4 rounded-full font-bold text-lg transition-colors shadow-lg">
+          <h2 className="text-3xl md:text-4xl font-extrabold text-slate-900 dark:text-white mb-6">성공적인 금융 혁신, ENCOCNS와 함께 하세요.</h2>
+          <p className="text-xl text-slate-600 dark:text-slate-400 mb-10">전문가와 상담하여 맞춤형 솔루션을 제안받아보세요.</p>
+          <Link to="/contact" className="inline-block bg-primary text-white hover:bg-blue-700 px-8 py-4 rounded-full font-bold text-lg transition-colors shadow-lg shadow-blue-500/30">
             프로젝트 문의하기
           </Link>
         </div>

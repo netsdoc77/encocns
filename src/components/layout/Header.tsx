@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { RiMenu3Line, RiCloseLine, RiSunLine, RiMoonLine } from '@remixicon/react';
+import { RiMenu3Line, RiCloseLine } from '@remixicon/react';
 
 export default function Header() {
   const { t } = useTranslation();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'light');
+  const [theme] = useState(localStorage.getItem('theme') || 'light');
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -19,9 +19,8 @@ export default function Header() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
+  // const toggleTheme = () => {
+  // };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -47,7 +46,7 @@ export default function Header() {
       <div className="container mx-auto px-6 flex items-center justify-between">
         <Link to="/" className="flex items-center">
           <img 
-            src="/logo.svg" 
+            src={`${import.meta.env.BASE_URL}logo.svg`} 
             alt="ENCOCNS Logo" 
             className="h-10 md:h-12 w-auto object-contain dark:brightness-0 dark:invert transition-all" 
           />
@@ -61,7 +60,7 @@ export default function Header() {
               <Link 
                 key={link.path} 
                 to={link.path} 
-                className={`group relative text-base font-bold transition-colors py-2 
+                className={`group relative text-base font-bold transition-colors py-2 whitespace-nowrap
                   ${isActive 
                     ? 'text-primary' 
                     : isScrolled ? 'text-slate-700 hover:text-primary dark:text-slate-300' : 'text-slate-800 hover:text-primary dark:text-slate-200'
@@ -76,9 +75,9 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:flex items-center gap-5">
-          <button onClick={toggleTheme} className="flex items-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
+          {/* <button onClick={toggleTheme} className="flex items-center text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
             {theme === 'dark' ? <RiSunLine size={22} /> : <RiMoonLine size={22} />}
-          </button>
+          </button> */}
           {/* <button onClick={toggleLang} className="flex items-center gap-1 text-sm font-bold text-slate-600 dark:text-slate-300 hover:text-primary transition-colors">
             <RiGlobalLine size={20} />
             {i18n.language === 'ko' ? 'EN' : 'KO'}

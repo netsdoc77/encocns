@@ -1,148 +1,141 @@
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { RiHeartPulseLine, RiBookOpenLine, RiTeamLine } from '@remixicon/react';
+import type { Variants } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import initialCareersData from '../data/careersData.json';
+import { getBadgeColor, isJobClosed } from '../utils/badgeColors';
 
 export default function Careers() {
-  const fadeIn = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  const [currentPage, setCurrentPage] = useState(1);
+  const [careersData, setCareersData] = useState(initialCareersData);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('encocns_careers');
+    if (stored) {
+      setCareersData(JSON.parse(stored));
+    } else {
+      localStorage.setItem('encocns_careers', JSON.stringify(initialCareersData));
+    }
+  }, []);
+  const itemsPerPage = 10;
+
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Pagination logic
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentItems = careersData.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(careersData.length / itemsPerPage);
+
+  const handlePageChange = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+    if (listRef.current) {
+      const y = listRef.current.getBoundingClientRect().top + window.scrollY - 100;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   };
 
-  const welfare = [
-    { icon: <RiHeartPulseLine size={32} />, title: '건강검진 지원', desc: '임직원 및 가족의 종합 건강검진을 지원합니다.' },
-    { icon: <RiBookOpenLine size={32} />, title: '자기계발비', desc: '도서 구입, 세미나 참석 등 성장을 위한 비용을 지원합니다.' },
-    { icon: <RiTeamLine size={32} />, title: '동호회 활동', desc: '사내 다양한 동호회 활동비를 지원하여 소통을 장려합니다.' },
-  ];
-
-  const process = [
-    { step: '01', title: '서류 전형', desc: '이력서 및 포트폴리오를 통한 직무 적합성 평가' },
-    { step: '02', title: '실무 인터뷰', desc: '현업 담당자와의 기술 및 직무 역량 심층 면접' },
-    { step: '03', title: '컬처 핏 인터뷰', desc: 'ENCOCNS의 핵심 가치와 부합하는지 확인하는 임원 면접' },
-    { step: '04', title: '처우 협의', desc: '최종 합격자 대상 처우 및 입사일 조율' },
-  ];
+  const fadeIn: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: "easeOut" } }
+  };
 
   return (
-    <div className="w-full">
-      {/* Hero */}
-      <section className="bg-slate-900 text-white pt-32 pb-32 text-center">
-        <div className="container mx-auto px-6">
-          <motion.div initial="hidden" animate="visible" variants={fadeIn} className="max-w-3xl mx-auto">
-            <span className="text-primary font-bold tracking-widest text-sm mb-4 block">JOIN US</span>
-            <h1 className="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
-              데이터로 금융의 미래를<br/>함께 그려갈 인재를 찾습니다
-            </h1>
-            <p className="text-xl text-slate-400 mb-10">
-              최고의 동료들과 함께 성장하며 혁신적인 금융 IT 생태계를 만들어가세요.
-            </p>
-            <button className="bg-primary hover:bg-primary-dark text-white px-8 py-4 rounded-full font-bold text-lg transition-colors">
-              채용 공고 보러가기
-            </button>
-          </motion.div>
+    <div className="w-full font-sans bg-white dark:bg-slate-900 min-h-screen">
+      {/* Hero Section (Like About, Business, Solution) */}
+      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={`${import.meta.env.BASE_URL}images/careers-hero.jpg`} 
+            alt="Careers Hero Background" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-slate-900/60 mix-blend-multiply"></div>
+        </div>
+        <div className="container mx-auto px-6 relative z-10 text-center">
+          <motion.h1 initial="hidden" animate="visible" variants={fadeIn} className="text-5xl md:text-7xl font-black text-white mb-8 tracking-tight">
+            함께 혁신을 만들어갈<br className="md:hidden" /> 인재를 모십니다
+          </motion.h1>
+          <motion.p initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.2 }} className="text-xl md:text-3xl text-slate-200 font-light max-w-4xl mx-auto leading-relaxed">
+            엔코씨앤에스와 함께 금융 IT의 새로운 미래를<br className="hidden md:block"/> 
+            이끌어갈 열정적인 전문가를 기다립니다.
+          </motion.p>
         </div>
       </section>
 
-      {/* Our Culture */}
-      <section className="py-24 bg-surface dark:bg-surface-dark">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Our Culture</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400">ENCOCNS는 이런 문화를 지향합니다.</p>
+      {/* Careers List (Same design as News) */}
+      <section className="py-24" ref={listRef}>
+        <div className="container mx-auto px-6 max-w-6xl">
+          
+          <div className="mb-12 text-center">
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white">채용 공고</h2>
+            <p className="text-slate-500 mt-4">현재 진행 중인 채용 포지션을 확인해 보세요.</p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-5xl mx-auto">
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="p-8">
-              <div className="text-4xl font-extrabold text-slate-200 dark:text-slate-700 mb-4">1</div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">전문성 중심</h3>
-              <p className="text-slate-600 dark:text-slate-400">직급에 관계없이 기술과 데이터에 기반한 논리적인 의견을 존중합니다.</p>
-            </motion.div>
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} transition={{ delay: 0.1 }} className="p-8">
-              <div className="text-4xl font-extrabold text-slate-200 dark:text-slate-700 mb-4">2</div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">투명한 협업</h3>
-              <p className="text-slate-600 dark:text-slate-400">모든 정보는 투명하게 공유되며, 부서 간 경계 없는 협업을 추구합니다.</p>
-            </motion.div>
-            <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} transition={{ delay: 0.2 }} className="p-8">
-              <div className="text-4xl font-extrabold text-slate-200 dark:text-slate-700 mb-4">3</div>
-              <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">끊임없는 성장</h3>
-              <p className="text-slate-600 dark:text-slate-400">실패를 두려워하지 않고, 새로운 기술에 끊임없이 도전합니다.</p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
 
-      {/* Welfare */}
-      <section className="py-24 bg-slate-50 dark:bg-slate-900/50">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Welfare</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400">업무에 몰입할 수 있도록 아낌없이 지원합니다.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {welfare.map((w, idx) => (
-              <motion.div 
-                key={idx}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeIn}
-                transition={{ delay: idx * 0.1 }}
-                className="bg-white dark:bg-slate-800 p-8 rounded-3xl border border-slate-100 dark:border-slate-700 shadow-sm text-center hover:-translate-y-2 transition-transform duration-300"
+          {/* List Items */}
+          <div className="flex flex-col border-t-2 border-slate-900 dark:border-slate-100">
+            {currentItems.map((job) => (
+              <Link 
+                to={`/careers/${job.id}`} 
+                key={job.id}
+                className="flex flex-col py-6 border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-200 group px-2"
               >
-                <div className="w-16 h-16 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                  {w.icon}
+                <div className="flex items-center gap-3 mb-2">
+                  <span className={`shrink-0 px-3 py-1 rounded-md text-xs font-bold border ${getBadgeColor(job.badge, isJobClosed(job.date))}`}>
+                    {job.badge}
+                  </span>
+                  <span className={`text-sm font-medium ${isJobClosed(job.date) ? 'text-slate-400 dark:text-slate-500 line-through' : 'text-slate-500 dark:text-slate-400'}`}>
+                    {job.date}
+                  </span>
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3">{w.title}</h3>
-                <p className="text-slate-600 dark:text-slate-400">{w.desc}</p>
-              </motion.div>
+                <div className="flex items-center gap-3">
+                  <h3 className={`font-bold text-lg md:text-xl transition-colors break-keep ${isJobClosed(job.date) ? 'text-slate-400 dark:text-slate-500' : 'text-slate-900 dark:text-white group-hover:text-primary'}`}>
+                    {job.title}
+                  </h3>
+                </div>
+              </Link>
             ))}
           </div>
-        </div>
-      </section>
 
-      {/* Hiring Process */}
-      <section className="py-24 bg-surface dark:bg-surface-dark">
-        <div className="container mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-4">Hiring Process</h2>
-            <p className="text-lg text-slate-600 dark:text-slate-400">공정하고 투명한 채용 프로세스를 통해 인재를 모십니다.</p>
-          </div>
-          <div className="max-w-4xl mx-auto">
-            <div className="hidden md:grid grid-cols-4 gap-4 relative">
-
-              {process.map((p, idx) => (
-                <motion.div 
-                  key={idx}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  variants={fadeIn}
-                  transition={{ delay: idx * 0.15 }}
-                  className="relative z-10 text-center"
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center items-center mt-12 gap-2">
+              <button 
+                onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors cursor-pointer disabled:cursor-not-allowed"
+              >
+                &lt;
+              </button>
+              
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => handlePageChange(page)}
+                  className={`w-10 h-10 flex items-center justify-center rounded-full font-bold text-sm transition-colors cursor-pointer ${
+                    currentPage === page 
+                      ? 'bg-slate-900 text-white dark:bg-white dark:text-slate-900' 
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  }`}
                 >
-                  <div className="w-12 h-12 bg-primary text-white rounded-full flex items-center justify-center mx-auto font-bold text-lg mb-4 shadow-lg ring-4 ring-white dark:ring-slate-900">
-                    {p.step}
-                  </div>
-                  <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{p.title}</h3>
-                  <p className="text-sm text-slate-500 dark:text-slate-400 px-2">{p.desc}</p>
-                </motion.div>
+                  {page}
+                </button>
               ))}
-            </div>
 
-            {/* Mobile Vertical Process */}
-            <div className="md:hidden flex flex-col gap-8">
-              {process.map((p, idx) => (
-                <div key={idx} className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 flex-shrink-0 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg z-10 relative">
-                      {p.step}
-                    </div>
-                    {idx < process.length - 1 && <div className="w-0.5 h-full bg-slate-200 dark:bg-slate-700 mt-2"></div>}
-                  </div>
-                  <div className="pt-2 pb-6">
-                    <h3 className="text-lg font-bold text-slate-900 dark:text-white mb-2">{p.title}</h3>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">{p.desc}</p>
-                  </div>
-                </div>
-              ))}
+              <button 
+                onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                disabled={currentPage === totalPages}
+                className="w-10 h-10 flex items-center justify-center rounded-full text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 disabled:hover:bg-transparent transition-colors cursor-pointer disabled:cursor-not-allowed"
+              >
+                &gt;
+              </button>
             </div>
-          </div>
+          )}
+          
         </div>
       </section>
     </div>

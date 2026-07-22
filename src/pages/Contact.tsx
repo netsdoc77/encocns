@@ -12,13 +12,31 @@ export default function Contact() {
 
   return (
     <div className="w-full bg-surface dark:bg-surface-dark min-h-screen pb-24">
-      {/* Page Header */}
-      <section className="bg-slate-900 text-white pt-32 pb-20">
-        <div className="container mx-auto px-6 text-center">
-          <motion.h1 initial="hidden" animate="visible" variants={fadeIn} className="text-4xl md:text-5xl font-extrabold mb-4">
+      {/* Hero Section */}
+      <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <img 
+            src={`${import.meta.env.BASE_URL}images/contact-hero.jpg`} 
+            alt="Contact Hero Background" 
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-slate-900/60 mix-blend-multiply"></div>
+        </div>
+        <div className="container mx-auto px-6 text-center relative z-10">
+          <motion.h1 
+            initial={{ opacity: 0, y: 30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="text-4xl md:text-6xl lg:text-7xl font-black text-white mb-6 tracking-tight"
+          >
             {t('header.contact')}
           </motion.h1>
-          <motion.p initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.1 }} className="text-xl text-slate-400">
+          <motion.p 
+            initial={{ opacity: 0, y: 30 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+            className="text-lg md:text-2xl text-slate-200 font-light max-w-3xl mx-auto break-keep leading-relaxed"
+          >
             솔루션 도입, 파트너십 등 무엇이든 문의해 주세요.
           </motion.p>
         </div>
@@ -98,7 +116,7 @@ export default function Contact() {
                   <textarea rows={6} className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all resize-none" placeholder="여기에 문의 내용을 상세히 적어주세요."></textarea>
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-4 flex justify-center">
                   <button type="button" className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white font-bold text-lg px-12 py-4 rounded-full transition-colors shadow-lg shadow-primary/30">
                     문의 접수하기
                   </button>

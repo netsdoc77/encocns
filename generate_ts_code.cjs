@@ -1,20 +1,11 @@
-import { motion } from 'framer-motion';
-import { useState, useEffect } from 'react';
-import initialProjectData from '../data/projectsData.json';
+const fs = require('fs');
+const data = fs.readFileSync('projects_data.txt', 'utf8');
+
+const code = `import { motion } from 'framer-motion';
+
+${data}
 
 export default function Projects() {
-  const [projectData, setProjectData] = useState(initialProjectData);
-
-  useEffect(() => {
-    // Load from local storage if exists, otherwise save initial data
-    const stored = localStorage.getItem('encocns_projects');
-    if (stored) {
-      setProjectData(JSON.parse(stored));
-    } else {
-      localStorage.setItem('encocns_projects', JSON.stringify(initialProjectData));
-    }
-  }, []);
-
   return (
     <div className="w-full relative bg-white dark:bg-slate-900 min-h-screen">
       {/* Page Header */}
@@ -23,7 +14,6 @@ export default function Projects() {
           <motion.h1 
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-4xl md:text-5xl font-extrabold mb-6 text-slate-900 dark:text-white tracking-tight"
           >
             프로젝트 수행 실적
@@ -31,7 +21,7 @@ export default function Projects() {
           <motion.p 
             initial={{ opacity: 0, y: 20 }} 
             animate={{ opacity: 1, y: 0 }} 
-            transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }} 
+            transition={{ delay: 0.1 }} 
             className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl leading-relaxed"
           >
             엔코씨앤에스가 그동안 성공적으로 완수한 주요 프로젝트 내역입니다. 
@@ -43,10 +33,6 @@ export default function Projects() {
       {/* Project List */}
       <section className="py-16">
         <div className="container mx-auto px-6 max-w-6xl">
-          
-          <div className="mb-4 text-xl font-bold text-slate-900 dark:text-white">
-            전체 ({projectData.length})
-          </div>
           
           {/* Table Header (Desktop) */}
           <div className="hidden md:flex border-y-2 border-slate-900 dark:border-slate-100 py-4 font-bold text-slate-900 dark:text-white text-sm">
@@ -103,3 +89,6 @@ export default function Projects() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync('src/pages/Projects.tsx', code);

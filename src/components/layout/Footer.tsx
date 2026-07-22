@@ -1,5 +1,7 @@
 
 
+import { Link } from 'react-router-dom';
+
 export default function Footer() {
 
 
@@ -9,7 +11,7 @@ export default function Footer() {
         <div className="col-span-1 md:col-span-2">
           <div className="flex items-center mb-6">
             <img
-              src="/logo.svg"
+              src={`${import.meta.env.BASE_URL}logo.svg`}
               alt="ENCOCNS Logo"
               className="h-12 w-auto object-contain brightness-0 invert"
             />
@@ -19,9 +21,9 @@ export default function Footer() {
         <div>
           <h4 className="text-white font-bold mb-4">Quick Links</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="/about" className="hover:text-primary transition-colors">About Us</a></li>
-            <li><a href="/business" className="hover:text-primary transition-colors">Business</a></li>
-            <li><a href="/solution" className="hover:text-primary transition-colors">Solutions</a></li>
+            <li><Link to="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+            <li><Link to="/business" className="hover:text-primary transition-colors">Business</Link></li>
+            <li><Link to="/solution" className="hover:text-primary transition-colors">Solutions</Link></li>
           </ul>
         </div>
 
@@ -29,8 +31,8 @@ export default function Footer() {
           <h4 className="text-white font-bold mb-4">Contact</h4>
           <ul className="space-y-2 text-sm">
             <li>hyungseok.choi@encocns.com</li>
-            <li>#A-407, Seoul Forest SK V1 Tower,</li>
-            <li>5, Seongsuil-ro 8-gil, Seongdong-gu, Seoul</li>
+            <li>#A-407, Seoul Forest SK V1 Tower, 5</li>
+            <li>Seongsuil-ro 8-gil, Seongdong-gu, Seoul</li>
           </ul>
         </div>
       </div>
