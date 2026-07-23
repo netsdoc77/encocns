@@ -13,6 +13,17 @@ export default function AdminNews() {
     setNews(getStorageData(NEWS_KEY));
   }, []);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
+
   const handleDelete = (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
       const updated = news.filter(n => n.id !== id);

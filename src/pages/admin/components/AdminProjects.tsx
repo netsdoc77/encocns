@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, PROJECTS_KEY } from '../../../utils/storage';
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiCalendarLine, RiSearchLine } from '@remixicon/react';
 import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 
@@ -17,6 +18,17 @@ export default function AdminProjects() {
   useEffect(() => {
     setProjects(getStorageData(PROJECTS_KEY));
   }, []);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
 
   const handleDelete = (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {

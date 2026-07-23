@@ -22,25 +22,25 @@ export default function About() {
       title: '금융 도메인 전문성', 
       desc: '다년간의 금융권 시스템 구축 경험을 통해, 복잡한 금융 비즈니스 로직과 데이터 흐름을 가장 정확하게 이해하고 설계합니다.',
       icon: <RiBuilding4Line size={40} />,
-      img: import.meta.env.BASE_URL + "images/photo-1460925895917-afdab827c52f.jpg"
+      img: import.meta.env.BASE_URL + "images/about-competency-domain.jpg"
     },
     { 
       title: '엔터프라이즈 프로젝트 수행 역량', 
       desc: '대규모 차세대 시스템부터 단위 업무 고도화까지, 체계적인 방법론을 적용하여 성공적인 프로젝트 완수를 보장합니다.',
       icon: <RiBriefcase4Line size={40} />,
-      img: import.meta.env.BASE_URL + "images/photo-1542744173-8e7e53415bb0.jpg"
+      img: import.meta.env.BASE_URL + "images/about-competency-enterprise.jpg"
     },
     { 
       title: '글로벌 규제 완벽 대응', 
       desc: 'IFRS, Basel 등 수시로 변화하는 글로벌 금융 규제에 선제적으로 대응하는 유연한 아키텍처를 제공합니다.',
       icon: <RiShieldCheckLine size={40} />,
-      img: import.meta.env.BASE_URL + "images/photo-1450101499163-c8848c66ca85.jpg"
+      img: import.meta.env.BASE_URL + "images/about-competency-regulation.jpg"
     },
     { 
       title: '무결점 장기 유지보수', 
       desc: '구축 이후에도 24/365 안정적인 운영을 보장하며, 비즈니스 연속성을 지키는 든든한 파트너가 됩니다.',
       icon: <RiHistoryLine size={40} />,
-      img: import.meta.env.BASE_URL + "images/photo-1551288049-bebda4e38f71.jpg"
+      img: import.meta.env.BASE_URL + "images/about-competency-maintenance.jpg"
     },
   ];
 
@@ -48,17 +48,17 @@ export default function About() {
     {
       title: '사업 조직',
       desc: '금융 고객사의 비즈니스 혁신을 이끄는 컨설팅 및 통합 IT 전략 수립',
-      img: import.meta.env.BASE_URL + "images/photo-1454165804606-c3d57bc86b40.jpg"
+      img: import.meta.env.BASE_URL + "images/about-org-business.jpg"
     },
     {
       title: '개발 조직',
       desc: '최신 기술 트렌드를 주도하는 코어 엔진 개발 및 아키텍처 설계',
-      img: import.meta.env.BASE_URL + "images/photo-1555066931-4365d14bab8c.jpg"
+      img: import.meta.env.BASE_URL + "images/about-org-dev.jpg"
     },
     {
       title: '운영 조직',
       desc: '무중단 금융 시스템을 위한 24시간 모니터링 및 선제적 품질 관리',
-      img: import.meta.env.BASE_URL + "images/photo-1517245386807-bb43f82c33c4.jpg"
+      img: import.meta.env.BASE_URL + "images/about-org-ops.jpg"
     }
   ];
 
@@ -68,7 +68,7 @@ export default function About() {
       <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src={`${import.meta.env.BASE_URL}images/photo-1497366216548-37526070297c.jpg`} 
+            src={`${import.meta.env.BASE_URL}images/about-hero.jpg`} 
             alt="Hero Background" 
             className="w-full h-full object-cover"
           />
@@ -90,12 +90,12 @@ export default function About() {
         <div className="container mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeIn} className="max-w-5xl mx-auto text-center">
             <h2 className="text-xl md:text-2xl font-bold text-primary mb-6 uppercase tracking-widest">Our Vision</h2>
-            <p className="text-3xl md:text-5xl text-slate-900 dark:text-white font-extrabold leading-tight mb-10">
-              최고의 IT 기술력과 도메인 지식을 융합하여<br className="hidden md:block"/> 
-              안정적이고 효율적인 비즈니스 환경을 완성합니다
+            <p className="text-3xl md:text-5xl text-slate-900 dark:text-white font-extrabold leading-tight mb-10 break-keep">
+              고객의 성장과 혁신을 함께하는<br className="hidden md:block"/> Digital Finance Partner
             </p>
-            <p className="text-xl text-slate-600 dark:text-slate-400 font-medium">
-              우리는 <span className="text-slate-900 dark:text-white font-bold">Trusted Digital Finance Partner</span> 로서 고객의 성공을 함께 만들어 갑니다.
+            <p className="text-lg md:text-xl text-slate-600 dark:text-slate-400 font-medium leading-relaxed break-keep">
+              ENCO CNS는 금융 산업에 대한 깊이 있는 이해와 검증된 IT 기술을 바탕으로<br className="hidden md:block"/>
+              고객의 비즈니스 혁신과 지속 가능한 성장을 함께 만들어갑니다.
             </p>
           </motion.div>
         </div>
@@ -171,7 +171,7 @@ export default function About() {
 
       {/* Organization (Rich Image Grid) */}
       <section className="py-32 bg-slate-900 text-white relative">
-        <div className="absolute inset-0 z-0 opacity-10 bg-cover bg-center" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}images/photo-1557683316-973673baf926.jpg)` }}></div>
+        <div className="absolute inset-0 z-0 opacity-10 bg-cover bg-center" style={{ backgroundImage: `url(${import.meta.env.BASE_URL}images/about-org-bg.jpg)` }}></div>
         <div className="container mx-auto px-6 relative z-10">
           <div className="text-center mb-24">
             <h2 className="text-4xl md:text-5xl font-black mb-6">Our Organization</h2>

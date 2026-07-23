@@ -11,6 +11,17 @@ export default function AdminInquiries() {
     setInquiries(getStorageData(INQUIRIES_KEY));
   }, []);
 
+  useEffect(() => {
+    if (selectedInquiry) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [selectedInquiry]);
+
   const handleStatusChange = (id: number, newStatus: string) => {
     const updated = inquiries.map(inq => 
       inq.id === id ? { ...inq, status: newStatus } : inq

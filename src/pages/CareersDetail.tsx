@@ -22,6 +22,17 @@ export default function CareersDetail() {
     window.scrollTo(0, 0);
   }, [id]);
 
+  useEffect(() => {
+    if (isModalOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
+
 
 
   if (!job) {
@@ -200,14 +211,14 @@ export default function CareersDetail() {
                     <button 
                       type="button"
                       onClick={() => setIsModalOpen(false)}
-                      className="flex-1 px-4 py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-xl font-bold transition-colors cursor-pointer"
+                      className="flex-1 px-4 py-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-full font-bold transition-all cursor-pointer"
                     >
                       취소
                     </button>
                     <button 
                       type="submit"
                       disabled={isSubmitting}
-                      className="flex-1 px-4 py-3.5 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-colors disabled:opacity-70 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/25"
+                      className="flex-1 px-4 py-3.5 bg-primary hover:bg-primary-dark text-white rounded-full font-bold transition-all disabled:opacity-70 flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-primary/25"
                     >
                       {isSubmitting ? (
                         <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

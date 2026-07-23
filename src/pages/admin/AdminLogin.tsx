@@ -127,12 +127,6 @@ export default function AdminLogin() {
               </button>
             </div>
           </form>
-          
-          <div className="mt-16 text-center text-xs text-slate-400 flex gap-4 justify-center">
-            <span className="hover:text-slate-600 cursor-pointer transition-colors">Privacy</span>
-            <span className="hover:text-slate-600 cursor-pointer transition-colors">Terms</span>
-            <span className="hover:text-slate-600 cursor-pointer transition-colors">Contact</span>
-          </div>
         </motion.div>
       </div>
     </div>

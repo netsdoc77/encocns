@@ -54,9 +54,9 @@ export default function BusinessDetail() {
       </div>
 
       {/* Sticky Sub-Service Tabs */}
-      <div className="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-[64px] md:top-[72px] z-40 shadow-sm transition-colors duration-300 overflow-hidden">
-        <div className="container mx-auto px-4 md:px-6 overflow-hidden">
-          <div className="flex justify-center gap-4 md:gap-12 overflow-x-auto overflow-y-hidden no-scrollbar py-0.5">
+      <div className="w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 sticky top-[64px] md:top-[72px] z-40 shadow-sm transition-colors duration-300">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="flex justify-center gap-4 md:gap-12 overflow-x-auto no-scrollbar">
             {category.services.map(srv => (
               <button 
                 key={srv.id}
@@ -65,7 +65,7 @@ export default function BusinessDetail() {
               >
                 {srv.name}
                 {activeServiceId === srv.id && (
-                  <motion.div layoutId="activeServiceIndicator" className="absolute bottom-0 left-0 right-0 h-[3px] md:h-1 bg-primary rounded-t-full" />
+                  <motion.div layoutId="activeServiceIndicator" className="absolute -bottom-[1px] left-0 right-0 h-[3px] md:h-1 bg-primary rounded-t-full" />
                 )}
               </button>
             ))}

@@ -26,7 +26,7 @@ export default function Business() {
       <section className="relative h-[60vh] min-h-[500px] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img 
-            src={`${import.meta.env.BASE_URL}images/photo-1518186285589-2f7649de83e0.jpg`} 
+            src={`${import.meta.env.BASE_URL}images/business-hero.jpg`} 
             alt="Business Hero" 
             className="w-full h-full object-cover scale-105"
           />

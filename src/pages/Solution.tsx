@@ -31,13 +31,13 @@ export default function Solution() {
       tag: "CashFlow-Engine",
       title: <>기업의 모든 돈의 흐름을 한눈에,<br className="hidden md:block"/> 스마트한 통합 자금관리 솔루션</>,
       desc: "복잡한 자금 관리와 시각화, 이제 클릭 몇 번으로 끝냅니다.",
-      img: import.meta.env.BASE_URL + "images/photo-1507679799987-c73779587ccf.jpg"
+      img: import.meta.env.BASE_URL + "images/solution-hero-cashflow.jpg"
     },
     framework: {
       tag: "ENCO FrameWork",
       title: <>안정적이고 확장 가능한<br className="hidden md:block"/> 금융 IT의 표준, ENCO FrameWork</>,
       desc: "대규모 금융 시스템 구축을 위한 완벽한 엔터프라이즈 아키텍처",
-      img: import.meta.env.BASE_URL + "images/photo-1451187580459-43490279c0fa.jpg"
+      img: import.meta.env.BASE_URL + "images/solution-hero-framework.jpg"
     }
   };
 
@@ -46,7 +46,7 @@ export default function Solution() {
       title: '실시간 통합 모니터링',
       desc: '모든 은행 계좌와 자금 현황을 하나의 대시보드에서 실시간으로 확인',
       icon: <RiDashboard2Line size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1551288049-bebda4e38f71.jpg",
+      img: import.meta.env.BASE_URL + "images/about-competency-maintenance.jpg",
       color: 'bg-blue-500',
       textColor: 'text-blue-500'
     },
@@ -54,7 +54,7 @@ export default function Solution() {
       title: '자동 자금일보 생성',
       desc: '수작업 없는 자동 수집으로 휴먼 에러 제로, 보고서 작성 시간 단축',
       icon: <RiFileList3Line size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1460925895917-afdab827c52f.jpg",
+      img: import.meta.env.BASE_URL + "images/about-competency-domain.jpg",
       color: 'bg-indigo-500',
       textColor: 'text-indigo-500'
     },
@@ -62,7 +62,7 @@ export default function Solution() {
       title: 'AI 자금 예측',
       desc: '과거 패턴을 분석해 향후 자금 과부족을 미리 예측하고 대비',
       icon: <RiBrainLine size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1555066931-4365d14bab8c.jpg",
+      img: import.meta.env.BASE_URL + "images/about-org-dev.jpg",
       color: 'bg-purple-500',
       textColor: 'text-purple-500'
     },
@@ -70,7 +70,7 @@ export default function Solution() {
       title: '안전한 보안 통제',
       desc: '결재 라인 지정 및 권한 관리로 자금 사고 원천 차단',
       icon: <RiShieldKeyholeLine size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1563986768609-322da13575f3.jpg",
+      img: import.meta.env.BASE_URL + "images/solution-cashflow-security.jpg",
       color: 'bg-emerald-500',
       textColor: 'text-emerald-500'
     }
@@ -81,7 +81,7 @@ export default function Solution() {
       title: '표준화된 개발 환경',
       desc: '검증된 라이브러리와 공통 모듈을 통해 개발 생산성을 극대화합니다.',
       icon: <RiCodeBoxLine size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1498050108023-c5249f4df085.jpg",
+      img: import.meta.env.BASE_URL + "images/solution-framework-devenv.jpg",
       color: 'bg-blue-500',
       textColor: 'text-blue-500'
     },
@@ -89,7 +89,7 @@ export default function Solution() {
       title: '대용량 분산 처리',
       desc: '금융권 특유의 대용량 트랜잭션에도 흔들림 없는 완벽한 안정성을 제공합니다.',
       icon: <RiServerLine size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1558494949-ef010cbdcc31.jpg",
+      img: import.meta.env.BASE_URL + "images/solution-framework-distributed.jpg",
       color: 'bg-indigo-500',
       textColor: 'text-indigo-500'
     },
@@ -97,7 +97,7 @@ export default function Solution() {
       title: 'MSA 아키텍처 지원',
       desc: '유연한 마이크로서비스 확장을 지원하여 비즈니스 변화에 민첩하게 대응합니다.',
       icon: <RiNodeTree size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1519389950473-47ba0277781c.jpg",
+      img: import.meta.env.BASE_URL + "images/solution-framework-msa.jpg",
       color: 'bg-purple-500',
       textColor: 'text-purple-500'
     },
@@ -105,7 +105,7 @@ export default function Solution() {
       title: '철저한 보안 프레임워크',
       desc: '민감한 금융 데이터를 보호하기 위한 다중 암호화 및 접근 제어 모듈이 내장되어 있습니다.',
       icon: <RiLockPasswordLine size={32} />,
-      img: import.meta.env.BASE_URL + "images/photo-1550751827-4bd374c3f58b.jpg",
+      img: import.meta.env.BASE_URL + "images/solution-framework-security.jpg",
       color: 'bg-emerald-500',
       textColor: 'text-emerald-500'
     }
