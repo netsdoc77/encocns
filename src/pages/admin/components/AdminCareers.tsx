@@ -12,16 +12,24 @@ export default function AdminCareers() {
   const [selectedBadge, setSelectedBadge] = useState('');
 
   const fetchCareers = async () => {
+    let remoteData: any[] = [];
     try {
-      const { data, error } = await supabase.from('careers').select('*').order('id', { ascending: false });
-      if (!error && data && data.length > 0) {
-        setCareers(data);
-        return;
+      const { data, error } = await supabase.from('careers').select('*');
+      if (!error && data) {
+        remoteData = data;
       }
     } catch (err) {
       console.error('Supabase error:', err);
     }
-    setCareers(getStorageData(CAREERS_KEY));
+    const localData = getStorageData(CAREERS_KEY) || [];
+    
+    const map = new Map();
+    remoteData.forEach(item => map.set(item.id, item));
+    localData.forEach((item: any) => map.set(item.id, item));
+
+    const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
+    setCareers(merged);
+    setStorageData(CAREERS_KEY, merged);
   };
 
   useEffect(() => {
@@ -42,11 +50,7 @@ export default function AdminCareers() {
   const handleDelete = async (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
       try {
-        const { error } = await supabase.from('careers').delete().eq('id', id);
-        if (!error) {
-          fetchCareers();
-          return;
-        }
+        await supabase.from('careers').delete().eq('id', id);
       } catch (err) {
         console.error('Supabase delete error:', err);
       }
@@ -77,21 +81,14 @@ export default function AdminCareers() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newId = editingId || Date.now();
+    const newItem = { id: newId, ...formData };
+
     try {
       if (editingId) {
-        const { error } = await supabase.from('careers').update(formData).eq('id', editingId);
-        if (!error) {
-          fetchCareers();
-          setIsModalOpen(false);
-          return;
-        }
+        await supabase.from('careers').update(formData).eq('id', editingId);
       } else {
-        const { error } = await supabase.from('careers').insert([formData]);
-        if (!error) {
-          fetchCareers();
-          setIsModalOpen(false);
-          return;
-        }
+        await supabase.from('careers').insert([newItem]);
       }
     } catch (err) {
       console.error('Supabase save error:', err);
@@ -101,7 +98,7 @@ export default function AdminCareers() {
     if (editingId) {
       updated = careers.map(c => c.id === editingId ? { ...c, ...formData } : c);
     } else {
-      updated = [{ id: Date.now(), ...formData }, ...careers];
+      updated = [newItem, ...careers];
     }
     setCareers(updated);
     setStorageData(CAREERS_KEY, updated);

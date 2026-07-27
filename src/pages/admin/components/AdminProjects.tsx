@@ -42,17 +42,24 @@ export default function AdminProjects() {
   const [endDate, setEndDate] = useState<Date | null>(null);
 
   const fetchProjects = async () => {
+    let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('projects').select('*');
-      if (!error && data && data.length > 0) {
-        setProjects([...data].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period)));
-        return;
+      if (!error && data) {
+        remoteData = data;
       }
     } catch (err) {
       console.error('Supabase error:', err);
     }
-    const localData = getStorageData(PROJECTS_KEY);
-    setProjects([...localData].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period)));
+    const localData = getStorageData(PROJECTS_KEY) || [];
+    
+    const map = new Map();
+    remoteData.forEach(item => map.set(item.id, item));
+    localData.forEach((item: any) => map.set(item.id, item));
+
+    const merged = Array.from(map.values()).sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
+    setProjects(merged);
+    setStorageData(PROJECTS_KEY, merged);
   };
 
   useEffect(() => {
@@ -73,11 +80,7 @@ export default function AdminProjects() {
   const handleDelete = async (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
       try {
-        const { error } = await supabase.from('projects').delete().eq('id', id);
-        if (!error) {
-          fetchProjects();
-          return;
-        }
+        await supabase.from('projects').delete().eq('id', id);
       } catch (err) {
         console.error('Supabase delete error:', err);
       }
@@ -124,23 +127,14 @@ export default function AdminProjects() {
     }
     
     const periodStr = `${format(startDate, 'yyyy.MM')} ~ ${endDate ? format(endDate, 'yyyy.MM') : '현재'}`;
-    const dataToSave = { ...formData, period: periodStr };
+    const newId = editingId || Date.now();
+    const dataToSave = { id: newId, ...formData, period: periodStr };
 
     try {
       if (editingId) {
-        const { error } = await supabase.from('projects').update(dataToSave).eq('id', editingId);
-        if (!error) {
-          fetchProjects();
-          setIsModalOpen(false);
-          return;
-        }
+        await supabase.from('projects').update(dataToSave).eq('id', editingId);
       } else {
-        const { error } = await supabase.from('projects').insert([dataToSave]);
-        if (!error) {
-          fetchProjects();
-          setIsModalOpen(false);
-          return;
-        }
+        await supabase.from('projects').insert([dataToSave]);
       }
     } catch (err) {
       console.error('Supabase save error:', err);
@@ -150,10 +144,11 @@ export default function AdminProjects() {
     if (editingId) {
       updated = projects.map(p => p.id === editingId ? { ...p, ...dataToSave } : p);
     } else {
-      updated = [{ id: Date.now(), ...dataToSave }, ...projects];
+      updated = [dataToSave, ...projects];
     }
-    setProjects(updated);
-    setStorageData(PROJECTS_KEY, updated);
+    const sorted = [...updated].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
+    setProjects(sorted);
+    setStorageData(PROJECTS_KEY, sorted);
     setIsModalOpen(false);
   };
 
