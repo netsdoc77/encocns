@@ -73,8 +73,8 @@ export default function NewsDetail() {
           className="py-12 space-y-8"
         >
           {newsItem.image_url && (
-            <div className="w-full overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg">
-              <img src={newsItem.image_url} alt={newsItem.title} className="w-full max-h-[500px] object-cover" />
+            <div className="w-full flex justify-start">
+              <img src={newsItem.image_url} alt={newsItem.title} className="max-w-full h-auto" />
             </div>
           )}
 
