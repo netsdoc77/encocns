@@ -166,15 +166,23 @@ export default function CareersDetail() {
       console.error('Supabase application insert error:', err);
     }
 
-    localStorage.setItem('encocns_applications', JSON.stringify([newApp, ...existingApps]));
+    try {
+      localStorage.setItem('encocns_applications', JSON.stringify([newApp, ...existingApps]));
+    } catch (err) {
+      console.warn('localStorage quota exceeded, saving without large base64 file data:', err);
+      const appWithoutLargeFile = { ...newApp, file_data: '' };
+      try {
+        localStorage.setItem('encocns_applications', JSON.stringify([appWithoutLargeFile, ...existingApps]));
+      } catch (innerErr) {
+        console.error('Failed to update localStorage:', innerErr);
+      }
+    }
 
-    setTimeout(() => {
-      setIsSubmitting(false);
-      setIsModalOpen(false);
-      setApplicantData({ name: '', email: '', phone: '', intro: '' });
-      setAttachedFile(null);
-      alert('지원이 성공적으로 완료되었습니다. 서류 검토 후 개별 안내드리겠습니다.');
-    }, 1000);
+    setIsSubmitting(false);
+    setIsModalOpen(false);
+    setApplicantData({ name: '', email: '', phone: '', intro: '' });
+    setAttachedFile(null);
+    alert('지원이 성공적으로 완료되었습니다. 서류 검토 후 개별 안내드리겠습니다.');
   };
 
   return (
