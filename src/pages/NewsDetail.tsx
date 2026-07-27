@@ -16,10 +16,19 @@ export default function NewsDetail() {
     async function fetchNewsItem() {
       if (!id) return;
       setIsLoading(true);
+      
+      const stored = localStorage.getItem('encocns_news');
+      const localData = stored ? JSON.parse(stored) : initialNewsData;
+      const localItem = localData.find((item: any) => item.id === Number(id));
+
       try {
         const { data, error } = await supabase.from('news').select('*').eq('id', Number(id)).single();
         if (!error && data) {
-          setNewsItem(data);
+          const merged = {
+            ...data,
+            image_url: data.image_url || (localItem ? localItem.image_url : '')
+          };
+          setNewsItem(merged);
           setIsLoading(false);
           window.scrollTo(0, 0);
           return;
@@ -28,10 +37,7 @@ export default function NewsDetail() {
         console.error('Supabase error:', err);
       }
 
-      const stored = localStorage.getItem('encocns_news');
-      const data = stored ? JSON.parse(stored) : initialNewsData;
-      const item = data.find((item: any) => item.id === Number(id));
-      setNewsItem(item);
+      setNewsItem(localItem || null);
       setIsLoading(false);
       window.scrollTo(0, 0);
     }
