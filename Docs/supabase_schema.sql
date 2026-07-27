@@ -119,3 +119,6 @@ CREATE TABLE IF NOT EXISTS public.applications (
     file_data TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+
+-- RLS (Row Level Security) 설정 (공개 접근 허용)
+ALTER TABLE public.applications DISABLE ROW LEVEL SECURITY;
