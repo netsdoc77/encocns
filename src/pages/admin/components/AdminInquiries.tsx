@@ -74,8 +74,15 @@ export default function AdminInquiries() {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+  const getInquiryDate = (inq: any) => {
+    if (!inq) return '';
+    return inq.created_at || inq.createdAt || inq.date || '';
+  };
+
+  const formatDate = (rawDate: any) => {
+    if (!rawDate) return '-';
+    const date = new Date(rawDate);
+    if (isNaN(date.getTime())) return String(rawDate);
     return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')} ${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
   };
 
@@ -119,13 +126,13 @@ export default function AdminInquiries() {
             </tr>
           </thead>
           <tbody>
-            {filteredInquiries.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).map(inq => (
+            {filteredInquiries.sort((a, b) => new Date(getInquiryDate(b)).getTime() - new Date(getInquiryDate(a)).getTime()).map(inq => (
               <tr 
                 key={inq.id} 
                 className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                 onClick={() => setSelectedInquiry(inq)}
               >
-                <td className="py-3 px-4 text-sm text-slate-600">{formatDate(inq.createdAt)}</td>
+                <td className="py-3 px-4 text-sm text-slate-600">{formatDate(getInquiryDate(inq))}</td>
                 <td className="py-3 px-4 text-sm font-medium text-slate-800">{inq.company}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">{inq.name}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">{inq.email}</td>
@@ -159,7 +166,7 @@ export default function AdminInquiries() {
             <div className="grid grid-cols-2 gap-4 mb-6">
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <p className="text-xs text-slate-500 font-bold mb-1">접수일시</p>
-                <p className="text-sm text-slate-800 font-medium">{formatDate(selectedInquiry.createdAt)}</p>
+                <p className="text-sm text-slate-800 font-medium">{formatDate(getInquiryDate(selectedInquiry))}</p>
               </div>
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                 <p className="text-xs text-slate-500 font-bold mb-1">회사명</p>

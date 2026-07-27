@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { RiMapPinLine, RiMailSendLine } from '@remixicon/react';
 import { supabase } from '../lib/supabase';
 import initialInquiriesData from '../data/inquiriesData.json';
 
 export default function Contact() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({ name: '', company: '', phone: '', email: '', content: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -34,6 +36,7 @@ export default function Contact() {
         alert('문의가 성공적으로 접수되었습니다. 담당자 확인 후 빠르게 연락드리겠습니다.');
         setFormData({ name: '', company: '', phone: '', email: '', content: '' });
         setIsSubmitting(false);
+        navigate('/');
         return;
       }
     } catch (err) {
@@ -49,6 +52,7 @@ export default function Contact() {
     alert('문의가 성공적으로 접수되었습니다.');
     setFormData({ name: '', company: '', phone: '', email: '', content: '' });
     setIsSubmitting(false);
+    navigate('/');
   };
 
   const fadeIn = {
@@ -153,7 +157,7 @@ export default function Contact() {
                 </div>
 
                 <div className="pt-4 flex justify-center">
-                  <button type="submit" disabled={isSubmitting} className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white font-bold text-lg px-12 py-4 rounded-full transition-colors shadow-lg shadow-primary/30 disabled:opacity-50">
+                  <button type="submit" disabled={isSubmitting} className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white font-bold text-lg px-12 py-4 rounded-full transition-colors shadow-lg shadow-primary/30 disabled:opacity-50 cursor-pointer">
                     {isSubmitting ? '접수 중...' : '문의 접수하기'}
                   </button>
                 </div>
