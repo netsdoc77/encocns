@@ -10,14 +10,17 @@ export default function NewsDetail() {
   const navigate = useNavigate();
   
   const [newsItem, setNewsItem] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchNewsItem() {
       if (!id) return;
+      setIsLoading(true);
       try {
         const { data, error } = await supabase.from('news').select('*').eq('id', Number(id)).single();
         if (!error && data) {
           setNewsItem(data);
+          setIsLoading(false);
           window.scrollTo(0, 0);
           return;
         }
@@ -29,18 +32,25 @@ export default function NewsDetail() {
       const data = stored ? JSON.parse(stored) : initialNewsData;
       const item = data.find((item: any) => item.id === Number(id));
       setNewsItem(item);
+      setIsLoading(false);
       window.scrollTo(0, 0);
     }
     fetchNewsItem();
   }, [id]);
 
-
+  if (isLoading) {
+    return (
+      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 pt-32">
+        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   if (!newsItem) {
     return (
-      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900">
+      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 pt-32">
         <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-4">존재하지 않는 게시글입니다.</h2>
-        <button onClick={() => navigate('/news')} className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-full">
+        <button onClick={() => navigate('/news')} className="px-6 py-2 bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold rounded-full cursor-pointer">
           목록으로 돌아가기
         </button>
       </div>
