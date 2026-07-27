@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { RiUserSettingsLine, RiFolder3Line, RiNewspaperLine, RiBriefcase4Line, RiLogoutBoxRLine, RiMessage3Line } from '@remixicon/react';
+import { RiUserSettingsLine, RiFolder3Line, RiNewspaperLine, RiBriefcase4Line, RiLogoutBoxRLine, RiMessage3Line, RiUserSharedLine } from '@remixicon/react';
 import AdminUsers from './components/AdminUsers';
 import AdminProjects from './components/AdminProjects';
 import AdminNews from './components/AdminNews';
 import AdminCareers from './components/AdminCareers';
 import AdminInquiries from './components/AdminInquiries';
+import AdminApplications from './components/AdminApplications';
 import { initializeStorage } from '../../utils/storage';
 
 export default function AdminDashboard() {
@@ -40,7 +41,8 @@ export default function AdminDashboard() {
     { id: 'users', label: '사용자 관리', icon: <RiUserSettingsLine size={20} /> },
     { id: 'projects', label: '프로젝트 관리', icon: <RiFolder3Line size={20} /> },
     { id: 'news', label: '뉴스 관리', icon: <RiNewspaperLine size={20} /> },
-    { id: 'careers', label: '채용 관리', icon: <RiBriefcase4Line size={20} /> },
+    { id: 'careers', label: '채용 공고 관리', icon: <RiBriefcase4Line size={20} /> },
+    { id: 'applications', label: '입사지원 관리', icon: <RiUserSharedLine size={20} /> },
     { id: 'inquiries', label: '문의 관리', icon: <RiMessage3Line size={20} /> },
   ];
 
@@ -127,6 +129,11 @@ export default function AdminDashboard() {
             {activeTab === 'careers' && (
               <motion.div key="careers" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
                 <AdminCareers />
+              </motion.div>
+            )}
+            {activeTab === 'applications' && (
+              <motion.div key="applications" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
+                <AdminApplications />
               </motion.div>
             )}
             {activeTab === 'inquiries' && (

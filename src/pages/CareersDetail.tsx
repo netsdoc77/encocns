@@ -21,6 +21,23 @@ export default function CareersDetail() {
     phone: '',
     intro: ''
   });
+  const [attachedFile, setAttachedFile] = useState<{ name: string; data: string } | null>(null);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setAttachedFile({
+          name: file.name,
+          data: reader.result as string
+        });
+      };
+      reader.readAsDataURL(file);
+    } else {
+      setAttachedFile(null);
+    }
+  };
 
   useEffect(() => {
     async function fetchJob() {
@@ -98,7 +115,7 @@ export default function CareersDetail() {
     setApplicantData(prev => ({ ...prev, phone: formatted }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Check duplicate application by email or phone for the current job
@@ -119,21 +136,45 @@ export default function CareersDetail() {
 
     setIsSubmitting(true);
     
-    setTimeout(() => {
-      const newApp = {
-        id: Date.now(),
-        jobId: job.id,
-        jobTitle: job.title,
-        ...applicantData,
-        appliedAt: new Date().toISOString()
-      };
-      localStorage.setItem('encocns_applications', JSON.stringify([newApp, ...existingApps]));
+    const now = new Date();
+    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    const newApp = {
+      id: Date.now(),
+      job_id: job.id,
+      job_title: job.title,
+      name: applicantData.name,
+      email: applicantData.email,
+      phone: applicantData.phone,
+      intro: applicantData.intro,
+      file_name: attachedFile ? attachedFile.name : '',
+      file_data: attachedFile ? attachedFile.data : '',
+      created_at: formattedDate
+    };
 
+    try {
+      await supabase.from('applications').insert([{
+        job_id: newApp.job_id,
+        job_title: newApp.job_title,
+        name: newApp.name,
+        email: newApp.email,
+        phone: newApp.phone,
+        intro: newApp.intro,
+        file_name: newApp.file_name,
+        file_data: newApp.file_data
+      }]);
+    } catch (err) {
+      console.error('Supabase application insert error:', err);
+    }
+
+    localStorage.setItem('encocns_applications', JSON.stringify([newApp, ...existingApps]));
+
+    setTimeout(() => {
       setIsSubmitting(false);
       setIsModalOpen(false);
       setApplicantData({ name: '', email: '', phone: '', intro: '' });
+      setAttachedFile(null);
       alert('지원이 성공적으로 완료되었습니다. 서류 검토 후 개별 안내드리겠습니다.');
-    }, 1200);
+    }, 1000);
   };
 
   return (
@@ -290,6 +331,7 @@ export default function CareersDetail() {
                       type="file" 
                       required 
                       accept=".pdf,.doc,.docx"
+                      onChange={handleFileChange}
                       className="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
                     />
                     <p className="text-xs text-slate-500 mt-2">PDF, DOC, DOCX 형식만 가능 (최대 10MB)</p>

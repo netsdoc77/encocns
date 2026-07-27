@@ -3,11 +3,12 @@ import initialNewsData from '../data/newsData.json';
 import initialCareersData from '../data/careersData.json';
 import initialInquiriesData from '../data/inquiriesData.json';
 
-const ADMIN_USERS_KEY = 'encocns_admin_users';
-const PROJECTS_KEY = 'encocns_projects';
-const NEWS_KEY = 'encocns_news';
-const CAREERS_KEY = 'encocns_careers';
-const INQUIRIES_KEY = 'encocns_inquiries';
+export const ADMIN_USERS_KEY = 'encocns_admin_users';
+export const PROJECTS_KEY = 'encocns_projects';
+export const NEWS_KEY = 'encocns_news';
+export const CAREERS_KEY = 'encocns_careers';
+export const INQUIRIES_KEY = 'encocns_inquiries';
+export const APPLICATIONS_KEY = 'encocns_applications';
 
 // Mock initial admin user
 const initialAdminUsers = [
@@ -40,5 +41,3 @@ export const getStorageData = (key: string) => {
 export const setStorageData = (key: string, data: any) => {
   localStorage.setItem(key, JSON.stringify(data));
 };
-
-export { ADMIN_USERS_KEY, PROJECTS_KEY, NEWS_KEY, CAREERS_KEY, INQUIRIES_KEY };
