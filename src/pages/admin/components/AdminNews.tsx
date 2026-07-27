@@ -19,7 +19,7 @@ export default function AdminNews() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
-  const [formData, setFormData] = useState({ date: '', title: '', content: '' });
+  const [formData, setFormData] = useState({ date: '', title: '', content: '', image_url: '' });
 
   const fetchNews = async () => {
     try {
@@ -70,12 +70,23 @@ export default function AdminNews() {
   const openModal = (item?: any) => {
     if (item) {
       setEditingId(item.id);
-      setFormData({ date: item.date, title: item.title, content: item.content });
+      setFormData({ date: item.date || '', title: item.title || '', content: item.content || '', image_url: item.image_url || '' });
     } else {
       setEditingId(null);
-      setFormData({ date: new Date().toISOString().split('T')[0], title: '', content: '' });
+      setFormData({ date: new Date().toISOString().split('T')[0], title: '', content: '', image_url: '' });
     }
     setIsModalOpen(true);
+  };
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData(prev => ({ ...prev, image_url: reader.result as string }));
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSave = async (e: React.FormEvent) => {
@@ -89,7 +100,9 @@ export default function AdminNews() {
           return;
         }
       } else {
-        const { error } = await supabase.from('news').insert([formData]);
+        const newId = Date.now();
+        const payload = { id: newId, ...formData };
+        const { error } = await supabase.from('news').insert([payload]);
         if (!error) {
           fetchNews();
           setIsModalOpen(false);
@@ -148,6 +161,7 @@ export default function AdminNews() {
           <thead>
             <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 text-sm">
               <th className="py-3 px-4 font-bold">등록일</th>
+              <th className="py-3 px-4 font-bold">이미지</th>
               <th className="py-3 px-4 font-bold w-1/2">제목</th>
               <th className="py-3 px-4 font-bold text-right">Actions</th>
             </tr>
@@ -155,19 +169,26 @@ export default function AdminNews() {
           <tbody>
             {filteredNews.map(item => (
               <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 text-sm text-slate-600">{item.date}</td>
+                <td className="py-3 px-4 text-sm text-slate-600 whitespace-nowrap">{item.date}</td>
+                <td className="py-3 px-4 text-sm text-slate-600">
+                  {item.image_url ? (
+                    <img src={item.image_url} alt="" className="w-12 h-12 object-cover rounded-lg border border-slate-200" />
+                  ) : (
+                    <span className="text-slate-300 text-xs font-mono">-</span>
+                  )}
+                </td>
                 <td className="py-3 px-4 text-sm font-medium text-slate-800">{item.title}</td>
                 <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
                   <button 
                     onClick={() => openModal(item)}
-                    className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors"
+                    className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors cursor-pointer"
                     title="수정"
                   >
                     <RiEditLine size={18} />
                   </button>
                   <button 
                     onClick={() => handleDelete(item.id)}
-                    className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                    className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
                     title="삭제"
                   >
                     <RiDeleteBinLine size={18} />
@@ -191,19 +212,62 @@ export default function AdminNews() {
             <form onSubmit={handleSave} className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">등록일</label>
-                <input required type="text" placeholder="예: 2026.07.15" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input required type="text" placeholder="예: 2026.07.15" value={formData.date} onChange={e => setFormData({...formData, date: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">제목</label>
-                <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+                <input required type="text" value={formData.title} onChange={e => setFormData({...formData, title: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm" />
               </div>
+              
+              {/* 이미지 첨부 섹션 */}
+              <div className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <label className="block text-sm font-bold text-slate-700">대표 이미지 첨부</label>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-1">📁 컴퓨터 파일 업로드</span>
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      onChange={handleImageFileChange}
+                      className="w-full text-xs text-slate-500 file:mr-2 file:py-2 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100 cursor-pointer" 
+                    />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-500 block mb-1">🔗 또는 이미지 URL 직접 입력</span>
+                    <input 
+                      type="text" 
+                      placeholder="https://example.com/image.jpg"
+                      value={formData.image_url} 
+                      onChange={e => setFormData({...formData, image_url: e.target.value})} 
+                      className="w-full px-3 py-1.5 border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-indigo-500 text-xs bg-white" 
+                    />
+                  </div>
+                </div>
+
+                {/* 이미지 미리보기 */}
+                {formData.image_url && (
+                  <div className="mt-3 pt-3 border-t border-slate-200 flex items-center gap-4">
+                    <img src={formData.image_url} alt="미리보기" className="w-20 h-20 object-cover rounded-lg border border-slate-300 shadow-sm" />
+                    <button 
+                      type="button" 
+                      onClick={() => setFormData({...formData, image_url: ''})} 
+                      className="text-xs text-red-500 hover:text-red-700 underline font-medium cursor-pointer"
+                    >
+                      이미지 삭제
+                    </button>
+                  </div>
+                )}
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">본문 내용</label>
-                <textarea required rows={10} value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"></textarea>
+                <textarea required rows={8} value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})} className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 font-mono text-sm"></textarea>
               </div>
+
               <div className="flex justify-end gap-3 mt-8">
-                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors">취소</button>
-                <button type="submit" className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors">저장</button>
+                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors cursor-pointer">취소</button>
+                <button type="submit" className="px-4 py-2 bg-indigo-500 text-white rounded-lg font-medium hover:bg-indigo-600 transition-colors cursor-pointer">저장</button>
               </div>
             </form>
           </div>

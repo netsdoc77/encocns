@@ -70,8 +70,14 @@ export default function NewsDetail() {
           initial={{ opacity: 0, y: 20 }} 
           animate={{ opacity: 1, y: 0 }} 
           transition={{ duration: 0.6, ease: "easeOut", delay: 0.1 }}
-          className="py-12"
+          className="py-12 space-y-8"
         >
+          {newsItem.image_url && (
+            <div className="w-full overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-800 shadow-lg">
+              <img src={newsItem.image_url} alt={newsItem.title} className="w-full max-h-[500px] object-cover" />
+            </div>
+          )}
+
           <p className="text-lg text-slate-700 dark:text-slate-300 leading-relaxed whitespace-pre-line">
             {newsItem.content}
           </p>

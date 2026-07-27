@@ -101,18 +101,25 @@ export default function News() {
               <Link 
                 to={`/news/${news.id}`} 
                 key={news.id}
-                className="flex flex-col py-6 border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-200 group px-2"
+                className="flex items-center justify-between py-6 border-b border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors duration-200 group px-2 gap-4"
               >
-                <div className="mb-2">
-                  <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
-                    {news.date}
-                  </span>
+                <div className="flex-1">
+                  <div className="mb-2">
+                    <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                      {news.date}
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="text-slate-900 dark:text-white font-bold text-lg md:text-xl group-hover:text-primary transition-colors break-keep">
+                      {news.title}
+                    </h3>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-slate-900 dark:text-white font-bold text-lg md:text-xl group-hover:text-primary transition-colors break-keep">
-                    {news.title}
-                  </h3>
-                </div>
+                {news.image_url && (
+                  <div className="shrink-0">
+                    <img src={news.image_url} alt="" className="w-20 h-20 md:w-24 md:h-24 object-cover rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm" />
+                  </div>
+                )}
               </Link>
             ))}
           </div>
