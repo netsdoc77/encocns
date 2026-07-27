@@ -71,14 +71,7 @@ export default function AdminInquiries() {
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
-      const { error } = await supabase.from('inquiries').update({ status: newStatus }).eq('id', id);
-      if (!error) {
-        fetchInquiries();
-        if (selectedInquiry && selectedInquiry.id === id) {
-          setSelectedInquiry({ ...selectedInquiry, status: newStatus });
-        }
-        return;
-      }
+      await supabase.from('inquiries').update({ status: newStatus }).eq('id', id);
     } catch (err) {
       console.error('Supabase status update error:', err);
     }
@@ -94,16 +87,26 @@ export default function AdminInquiries() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const normalizeStatus = (status: string) => {
+    if (!status) return '대기 중';
+    if (status === 'pending' || status === '접수완료') return '대기 중';
+    if (status === 'in-progress') return '처리 중';
+    if (status === 'completed') return '처리 완료';
+    return status;
+  };
+
+  const getStatusBadge = (rawStatus: string) => {
+    const status = normalizeStatus(rawStatus);
     switch(status) {
-      case 'pending':
-        return <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded text-xs font-bold">대기 중</span>;
-      case 'in-progress':
-        return <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">처리 중</span>;
-      case 'completed':
-        return <span className="bg-emerald-100 text-emerald-700 px-2 py-1 rounded text-xs font-bold">처리 완료</span>;
+      case '대기 중':
+      case '접수완료':
+        return <span className="bg-amber-100 text-amber-700 px-2.5 py-1 rounded-md text-xs font-bold">대기 중</span>;
+      case '처리 중':
+        return <span className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md text-xs font-bold">처리 중</span>;
+      case '처리 완료':
+        return <span className="bg-emerald-100 text-emerald-700 px-2.5 py-1 rounded-md text-xs font-bold">처리 완료</span>;
       default:
-        return <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs font-bold">{status}</span>;
+        return <span className="bg-slate-100 text-slate-700 px-2.5 py-1 rounded-md text-xs font-bold">{status}</span>;
     }
   };
 
@@ -240,20 +243,32 @@ export default function AdminInquiries() {
               <p className="text-sm text-slate-500 font-bold mb-3">처리 상태 변경</p>
               <div className="flex gap-3">
                 <button 
-                  onClick={() => handleStatusChange(selectedInquiry.id, 'pending')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${selectedInquiry.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  onClick={() => handleStatusChange(selectedInquiry.id, '대기 중')}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                    normalizeStatus(selectedInquiry.status) === '대기 중' 
+                      ? 'bg-amber-500 text-white shadow-md' 
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
                 >
                   대기 중
                 </button>
                 <button 
-                  onClick={() => handleStatusChange(selectedInquiry.id, 'in-progress')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${selectedInquiry.status === 'in-progress' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  onClick={() => handleStatusChange(selectedInquiry.id, '처리 중')}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                    normalizeStatus(selectedInquiry.status) === '처리 중' 
+                      ? 'bg-blue-500 text-white shadow-md' 
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
                 >
                   처리 중
                 </button>
                 <button 
-                  onClick={() => handleStatusChange(selectedInquiry.id, 'completed')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${selectedInquiry.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  onClick={() => handleStatusChange(selectedInquiry.id, '처리 완료')}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-all cursor-pointer ${
+                    normalizeStatus(selectedInquiry.status) === '처리 완료' 
+                      ? 'bg-emerald-500 text-white shadow-md' 
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
                 >
                   처리 완료
                 </button>
