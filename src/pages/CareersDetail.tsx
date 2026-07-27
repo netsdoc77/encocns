@@ -72,15 +72,69 @@ export default function CareersDetail() {
     );
   }
 
+  const [applicantData, setApplicantData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    intro: ''
+  });
+
+  const formatPhoneNumber = (value: string) => {
+    const numbers = value.replace(/[^0-9]/g, '');
+    if (numbers.length <= 3) return numbers;
+
+    if (numbers.startsWith('02')) {
+      if (numbers.length <= 5) return `${numbers.slice(0, 2)}-${numbers.slice(2)}`;
+      if (numbers.length <= 9) return `${numbers.slice(0, 2)}-${numbers.slice(2, 5)}-${numbers.slice(5)}`;
+      return `${numbers.slice(0, 2)}-${numbers.slice(2, 6)}-${numbers.slice(6, 10)}`;
+    }
+
+    if (numbers.length <= 6) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    if (numbers.length <= 10) return `${numbers.slice(0, 3)}-${numbers.slice(3, 6)}-${numbers.slice(6)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    setApplicantData(prev => ({ ...prev, phone: formatted }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Check duplicate application by email or phone for the current job
+    const storedApps = localStorage.getItem('encocns_applications');
+    const existingApps = storedApps ? JSON.parse(storedApps) : [];
+    
+    const isDuplicate = existingApps.some(
+      (app: any) => 
+        app.jobId === job.id && 
+        (app.email.trim().toLowerCase() === applicantData.email.trim().toLowerCase() ||
+         app.phone.replace(/[^0-9]/g, '') === applicantData.phone.replace(/[^0-9]/g, ''))
+    );
+
+    if (isDuplicate) {
+      alert('이미 본 채용 공고에 접수된 지원 내역(이메일 또는 연락처)이 존재합니다.');
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate API call
+    
     setTimeout(() => {
+      const newApp = {
+        id: Date.now(),
+        jobId: job.id,
+        jobTitle: job.title,
+        ...applicantData,
+        appliedAt: new Date().toISOString()
+      };
+      localStorage.setItem('encocns_applications', JSON.stringify([newApp, ...existingApps]));
+
       setIsSubmitting(false);
       setIsModalOpen(false);
-      alert('지원이 완료되었습니다. 결과는 개별 안내드리겠습니다.');
-    }, 1500);
+      setApplicantData({ name: '', email: '', phone: '', intro: '' });
+      alert('지원이 성공적으로 완료되었습니다. 서류 검토 후 개별 안내드리겠습니다.');
+    }, 1200);
   };
 
   return (
@@ -187,6 +241,8 @@ export default function CareersDetail() {
                     <input 
                       type="text" 
                       required 
+                      value={applicantData.name}
+                      onChange={e => setApplicantData({ ...applicantData, name: e.target.value })}
                       placeholder="이름을 입력해주세요"
                       className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
@@ -197,6 +253,8 @@ export default function CareersDetail() {
                     <input 
                       type="email" 
                       required 
+                      value={applicantData.email}
+                      onChange={e => setApplicantData({ ...applicantData, email: e.target.value })}
                       placeholder="example@email.com"
                       className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
@@ -207,6 +265,9 @@ export default function CareersDetail() {
                     <input 
                       type="tel" 
                       required 
+                      value={applicantData.phone}
+                      onChange={handlePhoneChange}
+                      maxLength={13}
                       placeholder="010-0000-0000"
                       className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all"
                     />
@@ -217,6 +278,8 @@ export default function CareersDetail() {
                     <textarea 
                       required 
                       rows={4}
+                      value={applicantData.intro}
+                      onChange={e => setApplicantData({ ...applicantData, intro: e.target.value })}
                       placeholder="간단한 자기소개를 입력해주세요 (지원 동기, 핵심 역량 등)"
                       className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 text-slate-900 dark:text-white focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none"
                     />
