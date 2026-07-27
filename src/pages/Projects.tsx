@@ -3,15 +3,43 @@ import { useState, useEffect } from 'react';
 import initialProjectData from '../data/projectsData.json';
 import { supabase } from '../lib/supabase';
 
+const getPeriodSortScore = (period: string) => {
+  if (!period) return 0;
+  const [startStr, endStr] = period.split('~').map(s => s.trim());
+
+  let endScore = 0;
+  if (endStr === '현재') {
+    endScore = 999999;
+  } else if (endStr) {
+    const parts = endStr.split('.');
+    const year = parseInt(parts[0]) || 0;
+    const month = parseInt(parts[1]) || 0;
+    endScore = year * 100 + month;
+  }
+
+  let startScore = 0;
+  if (startStr) {
+    const parts = startStr.split('.');
+    const year = parseInt(parts[0]) || 0;
+    const month = parseInt(parts[1]) || 0;
+    startScore = year * 100 + month;
+  }
+
+  return endScore * 1000000 + startScore;
+};
+
 export default function Projects() {
-  const [projectData, setProjectData] = useState(initialProjectData);
+  const [projectData, setProjectData] = useState<any[]>(() => 
+    [...initialProjectData].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period))
+  );
 
   useEffect(() => {
     async function fetchProjects() {
       try {
-        const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: false });
+        const { data, error } = await supabase.from('projects').select('*');
         if (!error && data && data.length > 0) {
-          setProjectData(data);
+          const sorted = [...data].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
+          setProjectData(sorted);
           return;
         }
       } catch (err) {
@@ -20,9 +48,12 @@ export default function Projects() {
       
       const stored = localStorage.getItem('encocns_projects');
       if (stored) {
-        setProjectData(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setProjectData([...parsed].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period)));
       } else {
-        localStorage.setItem('encocns_projects', JSON.stringify(initialProjectData));
+        const sorted = [...initialProjectData].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
+        localStorage.setItem('encocns_projects', JSON.stringify(sorted));
+        setProjectData(sorted);
       }
     }
     fetchProjects();

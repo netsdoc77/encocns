@@ -7,6 +7,31 @@ import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase } from '../../../lib/supabase';
 
+const getPeriodSortScore = (period: string) => {
+  if (!period) return 0;
+  const [startStr, endStr] = period.split('~').map(s => s.trim());
+
+  let endScore = 0;
+  if (endStr === '현재') {
+    endScore = 999999;
+  } else if (endStr) {
+    const parts = endStr.split('.');
+    const year = parseInt(parts[0]) || 0;
+    const month = parseInt(parts[1]) || 0;
+    endScore = year * 100 + month;
+  }
+
+  let startScore = 0;
+  if (startStr) {
+    const parts = startStr.split('.');
+    const year = parseInt(parts[0]) || 0;
+    const month = parseInt(parts[1]) || 0;
+    startScore = year * 100 + month;
+  }
+
+  return endScore * 1000000 + startScore;
+};
+
 export default function AdminProjects() {
   const [projects, setProjects] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,15 +43,16 @@ export default function AdminProjects() {
 
   const fetchProjects = async () => {
     try {
-      const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: false });
+      const { data, error } = await supabase.from('projects').select('*');
       if (!error && data && data.length > 0) {
-        setProjects(data);
+        setProjects([...data].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period)));
         return;
       }
     } catch (err) {
       console.error('Supabase error:', err);
     }
-    setProjects(getStorageData(PROJECTS_KEY));
+    const localData = getStorageData(PROJECTS_KEY);
+    setProjects([...localData].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period)));
   };
 
   useEffect(() => {
