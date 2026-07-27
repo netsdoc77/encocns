@@ -23,25 +23,31 @@ export default function News() {
 
   useEffect(() => {
     async function fetchNews() {
+      let remoteData: any[] = [];
       try {
         const { data, error } = await supabase.from('news').select('*');
-        if (!error && data && data.length > 0) {
-          setNewsData([...data].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
-          return;
+        if (!error && data) {
+          remoteData = data;
         }
       } catch (err) {
         console.error('Supabase error:', err);
       }
 
       const stored = localStorage.getItem('encocns_news');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setNewsData([...parsed].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
-      } else {
-        const sorted = [...initialNewsData].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
-        localStorage.setItem('encocns_news', JSON.stringify(sorted));
-        setNewsData(sorted);
-      }
+      const localData = stored ? JSON.parse(stored) : initialNewsData;
+
+      const map = new Map();
+      remoteData.forEach(item => map.set(item.id, item));
+      localData.forEach((item: any) => {
+        if (map.has(item.id)) {
+          map.set(item.id, { ...map.get(item.id), image_url: map.get(item.id).image_url || item.image_url });
+        } else {
+          map.set(item.id, item);
+        }
+      });
+
+      const merged = Array.from(map.values()).sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
+      setNewsData(merged);
     }
     fetchNews();
   }, []);

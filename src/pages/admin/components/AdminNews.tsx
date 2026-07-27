@@ -22,17 +22,30 @@ export default function AdminNews() {
   const [formData, setFormData] = useState({ date: '', title: '', content: '', image_url: '' });
 
   const fetchNews = async () => {
+    let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('news').select('*');
-      if (!error && data && data.length > 0) {
-        setNews([...data].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
-        return;
+      if (!error && data) {
+        remoteData = data;
       }
     } catch (err) {
       console.error('Supabase error:', err);
     }
-    const localData = getStorageData(NEWS_KEY);
-    setNews([...localData].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
+    const localData = getStorageData(NEWS_KEY) || [];
+    
+    const map = new Map();
+    remoteData.forEach(item => map.set(item.id, item));
+    localData.forEach((item: any) => {
+      if (map.has(item.id)) {
+        map.set(item.id, { ...map.get(item.id), image_url: map.get(item.id).image_url || item.image_url });
+      } else {
+        map.set(item.id, item);
+      }
+    });
+
+    const merged = Array.from(map.values()).sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
+    setNews(merged);
+    setStorageData(NEWS_KEY, merged);
   };
 
   useEffect(() => {
@@ -53,11 +66,7 @@ export default function AdminNews() {
   const handleDelete = async (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
       try {
-        const { error } = await supabase.from('news').delete().eq('id', id);
-        if (!error) {
-          fetchNews();
-          return;
-        }
+        await supabase.from('news').delete().eq('id', id);
       } catch (err) {
         console.error('Supabase delete error:', err);
       }
@@ -91,22 +100,21 @@ export default function AdminNews() {
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    const newId = editingId || Date.now();
+    const newItem = { id: newId, ...formData };
+
     try {
       if (editingId) {
         const { error } = await supabase.from('news').update(formData).eq('id', editingId);
-        if (!error) {
-          fetchNews();
-          setIsModalOpen(false);
-          return;
+        if (error) {
+          const { image_url, ...dbPayload } = formData;
+          await supabase.from('news').update(dbPayload).eq('id', editingId);
         }
       } else {
-        const newId = Date.now();
-        const payload = { id: newId, ...formData };
-        const { error } = await supabase.from('news').insert([payload]);
-        if (!error) {
-          fetchNews();
-          setIsModalOpen(false);
-          return;
+        const { error } = await supabase.from('news').insert([newItem]);
+        if (error) {
+          const { image_url, ...dbPayload } = newItem;
+          await supabase.from('news').insert([dbPayload]);
         }
       }
     } catch (err) {
@@ -117,10 +125,11 @@ export default function AdminNews() {
     if (editingId) {
       updated = news.map(n => n.id === editingId ? { ...n, ...formData } : n);
     } else {
-      updated = [{ id: Date.now(), ...formData }, ...news];
+      updated = [newItem, ...news];
     }
-    setNews(updated);
-    setStorageData(NEWS_KEY, updated);
+    const sorted = [...updated].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
+    setNews(sorted);
+    setStorageData(NEWS_KEY, sorted);
     setIsModalOpen(false);
   };
 

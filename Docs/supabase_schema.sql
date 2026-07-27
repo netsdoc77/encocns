@@ -19,8 +19,10 @@ CREATE TABLE IF NOT EXISTS public.news (
     date TEXT NOT NULL,
     title TEXT NOT NULL,
     content TEXT NOT NULL,
+    image_url TEXT,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
+ALTER TABLE public.news ADD COLUMN IF NOT EXISTS image_url TEXT;
 
 -- 3. 채용 공고 (Careers) 테이블
 CREATE TABLE IF NOT EXISTS public.careers (
