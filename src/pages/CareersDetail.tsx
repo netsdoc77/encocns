@@ -15,6 +15,12 @@ export default function CareersDetail() {
   
   const [job, setJob] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [applicantData, setApplicantData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    intro: ''
+  });
 
   useEffect(() => {
     async function fetchJob() {
@@ -71,13 +77,6 @@ export default function CareersDetail() {
       </div>
     );
   }
-
-  const [applicantData, setApplicantData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    intro: ''
-  });
 
   const formatPhoneNumber = (value: string) => {
     const numbers = value.replace(/[^0-9]/g, '');
