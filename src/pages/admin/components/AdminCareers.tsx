@@ -14,6 +14,7 @@ export default function AdminCareers() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ date: '', badge: '', title: '', content: '' });
   const [selectedBadge, setSelectedBadge] = useState('프론트엔드');
+  const [startDate, setStartDate] = useState<Date>(new Date());
   const [deadlineDate, setDeadlineDate] = useState<Date | null>(null);
 
   const fetchCareers = async () => {
@@ -65,31 +66,31 @@ export default function AdminCareers() {
     }
   };
 
-  const handleDeadlineChange = (date: Date | null) => {
-    setDeadlineDate(date);
-    if (date) {
-      setFormData(prev => ({ ...prev, date: format(date, 'yyyy.MM.dd') }));
-    } else {
-      setFormData(prev => ({ ...prev, date: '상시채용' }));
-    }
-  };
-
   const openModal = (item?: any) => {
     if (item) {
       setEditingId(item.id);
-      setFormData({ date: item.date || '상시채용', badge: item.badge || '', title: item.title, content: item.content });
+      setFormData({ date: item.date || '', badge: item.badge || '', title: item.title, content: item.content });
       
-      if (item.date && item.date !== '상시채용' && !item.date.includes('상시')) {
-        const cleanDateStr = item.date.replace(/\./g, '-');
-        const parsed = new Date(cleanDateStr);
-        if (!isNaN(parsed.getTime())) {
-          setDeadlineDate(parsed);
-        } else {
-          setDeadlineDate(null);
+      let parsedStart = new Date();
+      let parsedDeadline: Date | null = null;
+
+      if (item.date && item.date.includes('~')) {
+        const [startPart, endPart] = item.date.split('~').map((s: string) => s.trim());
+        if (startPart) {
+          const pStart = new Date(startPart.replace(/\./g, '-'));
+          if (!isNaN(pStart.getTime())) parsedStart = pStart;
         }
-      } else {
-        setDeadlineDate(null);
+        if (endPart && !endPart.includes('상시')) {
+          const pEnd = new Date(endPart.replace(/\./g, '-'));
+          if (!isNaN(pEnd.getTime())) parsedDeadline = pEnd;
+        }
+      } else if (item.date && !item.date.includes('상시')) {
+        const pEnd = new Date(item.date.replace(/\./g, '-'));
+        if (!isNaN(pEnd.getTime())) parsedDeadline = pEnd;
       }
+
+      setStartDate(parsedStart);
+      setDeadlineDate(parsedDeadline);
 
       const defaultBadges = ['프론트엔드', '백엔드', '앱개발', '인프라/보안', '기획/PM', '디자인'];
       if (item.badge && !defaultBadges.includes(item.badge)) {
@@ -99,8 +100,9 @@ export default function AdminCareers() {
       }
     } else {
       setEditingId(null);
-      setFormData({ date: '상시채용', badge: '프론트엔드', title: '', content: '' });
+      setFormData({ date: '', badge: '프론트엔드', title: '', content: '' });
       setSelectedBadge('프론트엔드');
+      setStartDate(new Date());
       setDeadlineDate(null);
     }
     setIsModalOpen(true);
@@ -109,7 +111,12 @@ export default function AdminCareers() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const newId = editingId || Date.now();
-    const newItem = { id: newId, ...formData };
+    
+    const startStr = format(startDate, 'yyyy.MM.dd');
+    const endStr = deadlineDate ? format(deadlineDate, 'yyyy.MM.dd') : '상시채용';
+    const fullDateStr = `${startStr} ~ ${endStr}`;
+
+    const newItem = { id: newId, ...formData, date: fullDateStr };
 
     try {
       await supabase.from('careers').insert([newItem]);
@@ -119,7 +126,7 @@ export default function AdminCareers() {
 
     let updated;
     if (editingId) {
-      updated = careers.map(c => c.id === editingId ? { ...c, ...formData } : c);
+      updated = careers.map(c => c.id === editingId ? newItem : c);
     } else {
       updated = [newItem, ...careers];
     }
@@ -196,24 +203,42 @@ export default function AdminCareers() {
             <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">시작일</label>
+                  <div className="relative">
+                    <DatePicker
+                      selected={startDate}
+                      onChange={(date: Date | null) => setStartDate(date || new Date())}
+                      dateFormat="yyyy.MM.dd"
+                      locale={ko}
+                      minDate={new Date()}
+                      className="w-full px-3 py-2 pl-10 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-700 cursor-pointer"
+                    />
+                    <RiCalendarLine className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">
+                    * 이전일 선택 불가 (오늘부터 선택 가능)
+                  </p>
+                </div>
+                <div>
                   <div className="flex justify-between items-center mb-1">
-                    <label className="block text-sm font-medium text-slate-700">마감일 설정</label>
+                    <label className="block text-sm font-medium text-slate-700">마감일</label>
                     {deadlineDate && (
                       <button
                         type="button"
-                        onClick={() => handleDeadlineChange(null)}
+                        onClick={() => setDeadlineDate(null)}
                         className="text-xs font-bold text-indigo-600 hover:text-indigo-800 transition-colors cursor-pointer"
                       >
-                        ↻ 상시채용으로 변경
+                        ↻ 상시채용
                       </button>
                     )}
                   </div>
                   <div className="relative">
                     <DatePicker
                       selected={deadlineDate}
-                      onChange={handleDeadlineChange}
+                      onChange={(date: Date | null) => setDeadlineDate(date)}
                       dateFormat="yyyy.MM.dd"
                       locale={ko}
+                      minDate={startDate}
                       placeholderText="상시채용 (클릭하여 마감일 선택)"
                       isClearable
                       className="w-full px-3 py-2 pl-10 pr-8 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-700 cursor-pointer"
@@ -221,7 +246,7 @@ export default function AdminCareers() {
                     <RiCalendarLine className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
                   </div>
                   <p className="text-xs text-slate-400 mt-1">
-                    * 날짜 미선택 시 기본 <span className="font-semibold text-indigo-600">상시채용</span>으로 설정됩니다.
+                    * 미선택 시 기본 <span className="font-semibold text-indigo-600">상시채용</span>으로 설정
                   </p>
                 </div>
                 <div>
