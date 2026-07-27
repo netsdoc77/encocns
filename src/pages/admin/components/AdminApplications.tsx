@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, APPLICATIONS_KEY } from '../../../utils/storage';
-import { RiCloseLine, RiSearchLine, RiDeleteBinLine, RiDownloadLine, RiEyeLine, RiFileTextLine } from '@remixicon/react';
+import { RiCloseLine, RiSearchLine, RiDeleteBinLine, RiDownloadLine, RiFileTextLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
 
 export default function AdminApplications() {
@@ -170,13 +170,6 @@ export default function AdminApplications() {
                     </td>
                     <td className="py-4 px-6 text-right whitespace-nowrap">
                       <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={() => setSelectedApp(app)}
-                          className="p-1.5 text-slate-400 hover:text-primary rounded-lg hover:bg-slate-100 transition-colors cursor-pointer"
-                          title="상세보기"
-                        >
-                          <RiEyeLine size={18} />
-                        </button>
                         <button
                           onClick={(e) => handleDelete(app.id, e)}
                           className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
