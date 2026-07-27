@@ -35,26 +35,25 @@ export default function Projects() {
 
   useEffect(() => {
     async function fetchProjects() {
+      let remoteData: any[] = [];
       try {
         const { data, error } = await supabase.from('projects').select('*');
-        if (!error && data && data.length > 0) {
-          const sorted = [...data].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
-          setProjectData(sorted);
-          return;
+        if (!error && data) {
+          remoteData = data;
         }
       } catch (err) {
         console.error('Supabase error:', err);
       }
       
       const stored = localStorage.getItem('encocns_projects');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        setProjectData([...parsed].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period)));
-      } else {
-        const sorted = [...initialProjectData].sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
-        localStorage.setItem('encocns_projects', JSON.stringify(sorted));
-        setProjectData(sorted);
-      }
+      const localData = stored ? JSON.parse(stored) : initialProjectData;
+
+      const map = new Map();
+      remoteData.forEach(item => map.set(item.id, item));
+      localData.forEach((item: any) => map.set(item.id, item));
+
+      const merged = Array.from(map.values()).sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
+      setProjectData(merged);
     }
     fetchProjects();
   }, []);

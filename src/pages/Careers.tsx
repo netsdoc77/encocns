@@ -12,22 +12,25 @@ export default function Careers() {
 
   useEffect(() => {
     async function fetchCareers() {
+      let remoteData: any[] = [];
       try {
-        const { data, error } = await supabase.from('careers').select('*').order('id', { ascending: false });
-        if (!error && data && data.length > 0) {
-          setCareersData(data);
-          return;
+        const { data, error } = await supabase.from('careers').select('*');
+        if (!error && data) {
+          remoteData = data;
         }
       } catch (err) {
         console.error('Supabase error:', err);
       }
 
       const stored = localStorage.getItem('encocns_careers');
-      if (stored) {
-        setCareersData(JSON.parse(stored));
-      } else {
-        localStorage.setItem('encocns_careers', JSON.stringify(initialCareersData));
-      }
+      const localData = stored ? JSON.parse(stored) : initialCareersData;
+
+      const map = new Map();
+      remoteData.forEach(item => map.set(item.id, item));
+      localData.forEach((item: any) => map.set(item.id, item));
+
+      const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
+      setCareersData(merged);
     }
     fetchCareers();
   }, []);
