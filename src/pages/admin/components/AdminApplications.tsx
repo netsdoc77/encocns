@@ -138,7 +138,7 @@ export default function AdminApplications() {
                 >
                   <td className="py-3 px-4 text-sm text-slate-600 font-mono">{dateStr}</td>
                   <td className="py-3 px-4 text-sm font-medium text-slate-800">{app.name}</td>
-                  <td className="py-3 px-4 text-sm text-indigo-600 font-medium">{jobTitle}</td>
+                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{jobTitle}</td>
                   <td className="py-3 px-4 text-sm text-slate-600">
                     <div>{app.phone}</div>
                     <div className="text-xs text-slate-400">{app.email}</div>
