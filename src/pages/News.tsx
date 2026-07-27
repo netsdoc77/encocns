@@ -4,16 +4,29 @@ import { Link } from 'react-router-dom';
 import initialNewsData from '../data/newsData.json';
 import { supabase } from '../lib/supabase';
 
+const getNewsDateScore = (item: any) => {
+  const dateStr = item.date || item.created_at || '';
+  if (!dateStr) return 0;
+  const clean = dateStr.replace(/[^0-9]/g, '');
+  if (clean.length >= 8) {
+    return parseInt(clean.slice(0, 8));
+  }
+  const time = new Date(dateStr).getTime();
+  return isNaN(time) ? 0 : time;
+};
+
 export default function News() {
   const [currentPage, setCurrentPage] = useState(1);
-  const [newsData, setNewsData] = useState(initialNewsData);
+  const [newsData, setNewsData] = useState<any[]>(() => 
+    [...initialNewsData].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a))
+  );
 
   useEffect(() => {
     async function fetchNews() {
       try {
-        const { data, error } = await supabase.from('news').select('*').order('id', { ascending: false });
+        const { data, error } = await supabase.from('news').select('*');
         if (!error && data && data.length > 0) {
-          setNewsData(data);
+          setNewsData([...data].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
           return;
         }
       } catch (err) {
@@ -22,9 +35,12 @@ export default function News() {
 
       const stored = localStorage.getItem('encocns_news');
       if (stored) {
-        setNewsData(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setNewsData([...parsed].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
       } else {
-        localStorage.setItem('encocns_news', JSON.stringify(initialNewsData));
+        const sorted = [...initialNewsData].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
+        localStorage.setItem('encocns_news', JSON.stringify(sorted));
+        setNewsData(sorted);
       }
     }
     fetchNews();

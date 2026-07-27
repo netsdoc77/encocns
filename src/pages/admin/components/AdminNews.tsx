@@ -3,6 +3,17 @@ import { getStorageData, setStorageData, NEWS_KEY } from '../../../utils/storage
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiSearchLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
 
+const getNewsDateScore = (item: any) => {
+  const dateStr = item.date || item.created_at || '';
+  if (!dateStr) return 0;
+  const clean = dateStr.replace(/[^0-9]/g, '');
+  if (clean.length >= 8) {
+    return parseInt(clean.slice(0, 8));
+  }
+  const time = new Date(dateStr).getTime();
+  return isNaN(time) ? 0 : time;
+};
+
 export default function AdminNews() {
   const [news, setNews] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -12,15 +23,16 @@ export default function AdminNews() {
 
   const fetchNews = async () => {
     try {
-      const { data, error } = await supabase.from('news').select('*').order('id', { ascending: false });
+      const { data, error } = await supabase.from('news').select('*');
       if (!error && data && data.length > 0) {
-        setNews(data);
+        setNews([...data].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
         return;
       }
     } catch (err) {
       console.error('Supabase error:', err);
     }
-    setNews(getStorageData(NEWS_KEY));
+    const localData = getStorageData(NEWS_KEY);
+    setNews([...localData].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a)));
   };
 
   useEffect(() => {
