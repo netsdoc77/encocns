@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
+import { RiSearchLine, RiCloseLine } from '@remixicon/react';
 import initialNewsData from '../data/newsData.json';
 import { supabase } from '../lib/supabase';
 
@@ -20,6 +21,7 @@ export default function News() {
   const [newsData, setNewsData] = useState<any[]>(() => 
     [...initialNewsData].sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a))
   );
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     async function fetchNews() {
@@ -59,11 +61,30 @@ export default function News() {
     window.scrollTo(0, 0);
   }, []);
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
+
+  const handleSearchClear = () => {
+    setSearchTerm('');
+    setCurrentPage(1);
+  };
+
+  // Filtered Items
+  const filteredNews = newsData.filter(news => {
+    const term = searchTerm.toLowerCase().trim();
+    if (!term) return true;
+    const titleMatch = news.title ? news.title.toLowerCase().includes(term) : false;
+    const contentMatch = news.content ? news.content.toLowerCase().includes(term) : false;
+    return titleMatch || contentMatch;
+  });
+
   // Pagination logic
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = newsData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(newsData.length / itemsPerPage);
+  const currentItems = filteredNews.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filteredNews.length / itemsPerPage);
 
   const handlePageChange = (pageNumber: number) => {
     setCurrentPage(pageNumber);
@@ -101,6 +122,34 @@ export default function News() {
       <section className="py-16" ref={listRef}>
         <div className="container mx-auto px-6 max-w-6xl">
           
+          {/* Search & Header Info Bar */}
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              총 <span className="font-bold text-primary">{filteredNews.length}</span>건의 소식이 있습니다.
+            </div>
+            
+            {/* Search Input Box */}
+            <div className="relative w-full md:w-80">
+              <input
+                type="text"
+                placeholder="제목 또는 내용 검색"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full pl-10 pr-10 py-3 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all shadow-sm"
+              />
+              <RiSearchLine className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+              {searchTerm && (
+                <button
+                  onClick={handleSearchClear}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer p-1"
+                  title="검색어 초기화"
+                >
+                  <RiCloseLine size={18} />
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* News Items */}
           <div className="flex flex-col border-t-2 border-slate-900 dark:border-slate-100">
             {currentItems.map((news) => (
@@ -121,6 +170,20 @@ export default function News() {
                 </div>
               </Link>
             ))}
+
+            {filteredNews.length === 0 && (
+              <div className="py-24 text-center border-b border-slate-200 dark:border-slate-800">
+                <p className="text-lg font-medium text-slate-500 dark:text-slate-400 mb-4">
+                  "{searchTerm}"에 대한 검색 결과가 없습니다.
+                </p>
+                <button
+                  onClick={handleSearchClear}
+                  className="px-6 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 font-bold rounded-full text-sm transition-colors cursor-pointer"
+                >
+                  전체 목록 보기
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Pagination */}
