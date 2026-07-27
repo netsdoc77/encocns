@@ -8,6 +8,8 @@ import { RiAddLine, RiDeleteBinLine, RiEditLine, RiCalendarLine } from '@remixic
 import { getBadgeColor, isJobClosed } from '../../../utils/badgeColors';
 import { supabase } from '../../../lib/supabase';
 
+import initialCareersData from '../../../data/careersData.json';
+
 export default function AdminCareers() {
   const [careers, setCareers] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +32,7 @@ export default function AdminCareers() {
     const localData = getStorageData(CAREERS_KEY) || [];
     
     const map = new Map();
+    initialCareersData.forEach(item => map.set(item.id, item));
     remoteData.forEach(item => map.set(item.id, item));
     localData.forEach((item: any) => map.set(item.id, item));
 

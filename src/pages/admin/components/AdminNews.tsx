@@ -3,6 +3,8 @@ import { getStorageData, setStorageData, NEWS_KEY } from '../../../utils/storage
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiSearchLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
 
+import initialNewsData from '../../../data/newsData.json';
+
 const getNewsDateScore = (item: any) => {
   const dateStr = item.date || item.created_at || '';
   if (!dateStr) return 0;
@@ -34,6 +36,7 @@ export default function AdminNews() {
     const localData = getStorageData(NEWS_KEY) || [];
     
     const map = new Map();
+    initialNewsData.forEach(item => map.set(item.id, item));
     remoteData.forEach(item => map.set(item.id, item));
     localData.forEach((item: any) => {
       if (map.has(item.id)) {

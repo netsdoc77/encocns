@@ -7,6 +7,8 @@ import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase } from '../../../lib/supabase';
 
+import initialProjectsData from '../../../data/projectsData.json';
+
 const getPeriodSortScore = (period: string) => {
   if (!period) return 0;
   const [startStr, endStr] = period.split('~').map(s => s.trim());
@@ -54,6 +56,7 @@ export default function AdminProjects() {
     const localData = getStorageData(PROJECTS_KEY) || [];
     
     const map = new Map();
+    initialProjectsData.forEach(item => map.set(item.id, item));
     remoteData.forEach(item => map.set(item.id, item));
     localData.forEach((item: any) => map.set(item.id, item));
 

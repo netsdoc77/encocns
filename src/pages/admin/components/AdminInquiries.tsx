@@ -3,6 +3,8 @@ import { getStorageData, setStorageData, INQUIRIES_KEY } from '../../../utils/st
 import { RiCloseLine, RiSearchLine, RiDeleteBinLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
 
+import initialInquiriesData from '../../../data/inquiriesData.json';
+
 export default function AdminInquiries() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
@@ -21,6 +23,7 @@ export default function AdminInquiries() {
     const localData = getStorageData(INQUIRIES_KEY) || [];
     
     const map = new Map();
+    initialInquiriesData.forEach(item => map.set(item.id, item));
     remoteData.forEach(item => map.set(item.id, item));
     localData.forEach((item: any) => map.set(item.id, item));
 
