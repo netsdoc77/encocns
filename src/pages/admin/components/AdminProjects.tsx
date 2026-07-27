@@ -11,6 +11,14 @@ const getPeriodSortScore = (period: string) => {
   if (!period) return 0;
   const [startStr, endStr] = period.split('~').map(s => s.trim());
 
+  let startScore = 0;
+  if (startStr) {
+    const parts = startStr.split('.');
+    const year = parseInt(parts[0]) || 0;
+    const month = parseInt(parts[1]) || 0;
+    startScore = year * 100 + month;
+  }
+
   let endScore = 0;
   if (endStr === '현재') {
     endScore = 999999;
@@ -21,15 +29,7 @@ const getPeriodSortScore = (period: string) => {
     endScore = year * 100 + month;
   }
 
-  let startScore = 0;
-  if (startStr) {
-    const parts = startStr.split('.');
-    const year = parseInt(parts[0]) || 0;
-    const month = parseInt(parts[1]) || 0;
-    startScore = year * 100 + month;
-  }
-
-  return endScore * 1000000 + startScore;
+  return startScore * 1000000 + endScore;
 };
 
 export default function AdminProjects() {
