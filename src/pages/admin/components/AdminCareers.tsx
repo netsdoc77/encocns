@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, CAREERS_KEY } from '../../../utils/storage';
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiCalendarLine } from '@remixicon/react';
 import { getBadgeColor, isJobClosed } from '../../../utils/badgeColors';
+import { supabase } from '../../../lib/supabase';
 
 export default function AdminCareers() {
   const [careers, setCareers] = useState<any[]>([]);
@@ -10,8 +11,21 @@ export default function AdminCareers() {
   const [formData, setFormData] = useState({ date: '', badge: '', title: '', content: '' });
   const [selectedBadge, setSelectedBadge] = useState('');
 
-  useEffect(() => {
+  const fetchCareers = async () => {
+    try {
+      const { data, error } = await supabase.from('careers').select('*').order('id', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setCareers(data);
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase error:', err);
+    }
     setCareers(getStorageData(CAREERS_KEY));
+  };
+
+  useEffect(() => {
+    fetchCareers();
   }, []);
 
   useEffect(() => {
@@ -25,8 +39,17 @@ export default function AdminCareers() {
     };
   }, [isModalOpen]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
+      try {
+        const { error } = await supabase.from('careers').delete().eq('id', id);
+        if (!error) {
+          fetchCareers();
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase delete error:', err);
+      }
       const updated = careers.filter(c => c.id !== id);
       setCareers(updated);
       setStorageData(CAREERS_KEY, updated);
@@ -38,7 +61,6 @@ export default function AdminCareers() {
       setEditingId(item.id);
       setFormData({ date: item.date, badge: item.badge || '', title: item.title, content: item.content });
       
-      // Determine if it's a custom badge
       const defaultBadges = ['프론트엔드', '백엔드', '앱개발', '인프라/보안', '기획/PM', '디자인'];
       if (item.badge && !defaultBadges.includes(item.badge)) {
         setSelectedBadge('직접입력');
@@ -47,14 +69,34 @@ export default function AdminCareers() {
       }
     } else {
       setEditingId(null);
-      setFormData({ date: '', badge: '프론트엔드', title: '', content: '' });
+      setFormData({ date: '상시채용', badge: '프론트엔드', title: '', content: '' });
       setSelectedBadge('프론트엔드');
     }
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      if (editingId) {
+        const { error } = await supabase.from('careers').update(formData).eq('id', editingId);
+        if (!error) {
+          fetchCareers();
+          setIsModalOpen(false);
+          return;
+        }
+      } else {
+        const { error } = await supabase.from('careers').insert([formData]);
+        if (!error) {
+          fetchCareers();
+          setIsModalOpen(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Supabase save error:', err);
+    }
+
     let updated;
     if (editingId) {
       updated = careers.map(c => c.id === editingId ? { ...c, ...formData } : c);

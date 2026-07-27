@@ -1,18 +1,31 @@
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import initialProjectData from '../data/projectsData.json';
+import { supabase } from '../lib/supabase';
 
 export default function Projects() {
   const [projectData, setProjectData] = useState(initialProjectData);
 
   useEffect(() => {
-    // Load from local storage if exists, otherwise save initial data
-    const stored = localStorage.getItem('encocns_projects');
-    if (stored) {
-      setProjectData(JSON.parse(stored));
-    } else {
-      localStorage.setItem('encocns_projects', JSON.stringify(initialProjectData));
+    async function fetchProjects() {
+      try {
+        const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: false });
+        if (!error && data && data.length > 0) {
+          setProjectData(data);
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase error:', err);
+      }
+      
+      const stored = localStorage.getItem('encocns_projects');
+      if (stored) {
+        setProjectData(JSON.parse(stored));
+      } else {
+        localStorage.setItem('encocns_projects', JSON.stringify(initialProjectData));
+      }
     }
+    fetchProjects();
   }, []);
 
   return (

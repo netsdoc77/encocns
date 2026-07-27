@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, NEWS_KEY } from '../../../utils/storage';
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiSearchLine } from '@remixicon/react';
+import { supabase } from '../../../lib/supabase';
 
 export default function AdminNews() {
   const [news, setNews] = useState<any[]>([]);
@@ -9,8 +10,21 @@ export default function AdminNews() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ date: '', title: '', content: '' });
 
-  useEffect(() => {
+  const fetchNews = async () => {
+    try {
+      const { data, error } = await supabase.from('news').select('*').order('id', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setNews(data);
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase error:', err);
+    }
     setNews(getStorageData(NEWS_KEY));
+  };
+
+  useEffect(() => {
+    fetchNews();
   }, []);
 
   useEffect(() => {
@@ -24,8 +38,17 @@ export default function AdminNews() {
     };
   }, [isModalOpen]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
+      try {
+        const { error } = await supabase.from('news').delete().eq('id', id);
+        if (!error) {
+          fetchNews();
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase delete error:', err);
+      }
       const updated = news.filter(n => n.id !== id);
       setNews(updated);
       setStorageData(NEWS_KEY, updated);
@@ -38,13 +61,33 @@ export default function AdminNews() {
       setFormData({ date: item.date, title: item.title, content: item.content });
     } else {
       setEditingId(null);
-      setFormData({ date: '', title: '', content: '' });
+      setFormData({ date: new Date().toISOString().split('T')[0], title: '', content: '' });
     }
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      if (editingId) {
+        const { error } = await supabase.from('news').update(formData).eq('id', editingId);
+        if (!error) {
+          fetchNews();
+          setIsModalOpen(false);
+          return;
+        }
+      } else {
+        const { error } = await supabase.from('news').insert([formData]);
+        if (!error) {
+          fetchNews();
+          setIsModalOpen(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Supabase save error:', err);
+    }
+
     let updated;
     if (editingId) {
       updated = news.map(n => n.id === editingId ? { ...n, ...formData } : n);

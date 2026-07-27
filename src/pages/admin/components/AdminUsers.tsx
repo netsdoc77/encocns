@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, ADMIN_USERS_KEY } from '../../../utils/storage';
 import { RiAddLine, RiDeleteBinLine, RiSearchLine } from '@remixicon/react';
+import { supabase } from '../../../lib/supabase';
 
 export default function AdminUsers() {
   const [users, setUsers] = useState<any[]>([]);
@@ -8,8 +9,21 @@ export default function AdminUsers() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [formData, setFormData] = useState({ username: '', password: '', name: '', role: 'admin' });
 
-  useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase.from('admin_users').select('*').order('id', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setUsers(data);
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase error:', err);
+    }
     setUsers(getStorageData(ADMIN_USERS_KEY));
+  };
+
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
   useEffect(() => {
@@ -23,16 +37,37 @@ export default function AdminUsers() {
     };
   }, [isModalOpen]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
+      try {
+        const { error } = await supabase.from('admin_users').delete().eq('id', id);
+        if (!error) {
+          fetchUsers();
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase delete error:', err);
+      }
       const updated = users.filter(u => u.id !== id);
       setUsers(updated);
       setStorageData(ADMIN_USERS_KEY, updated);
     }
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    try {
+      const { error } = await supabase.from('admin_users').insert([formData]);
+      if (!error) {
+        fetchUsers();
+        setIsModalOpen(false);
+        setFormData({ username: '', password: '', name: '', role: 'admin' });
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase save error:', err);
+    }
+
     const newUser = {
       ...formData,
       id: Date.now()

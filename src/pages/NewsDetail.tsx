@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { RiArrowLeftLine } from '@remixicon/react';
 import initialNewsData from '../data/newsData.json';
 import { useEffect, useState } from 'react';
+import { supabase } from '../lib/supabase';
 
 export default function NewsDetail() {
   const { id } = useParams();
@@ -11,11 +12,26 @@ export default function NewsDetail() {
   const [newsItem, setNewsItem] = useState<any>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('encocns_news');
-    const data = stored ? JSON.parse(stored) : initialNewsData;
-    const item = data.find((item: any) => item.id === Number(id));
-    setNewsItem(item);
-    window.scrollTo(0, 0);
+    async function fetchNewsItem() {
+      if (!id) return;
+      try {
+        const { data, error } = await supabase.from('news').select('*').eq('id', Number(id)).single();
+        if (!error && data) {
+          setNewsItem(data);
+          window.scrollTo(0, 0);
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase error:', err);
+      }
+
+      const stored = localStorage.getItem('encocns_news');
+      const data = stored ? JSON.parse(stored) : initialNewsData;
+      const item = data.find((item: any) => item.id === Number(id));
+      setNewsItem(item);
+      window.scrollTo(0, 0);
+    }
+    fetchNewsItem();
   }, [id]);
 
 

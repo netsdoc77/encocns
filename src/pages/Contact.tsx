@@ -1,9 +1,55 @@
+import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { RiMapPinLine, RiMailSendLine } from '@remixicon/react';
+import { supabase } from '../lib/supabase';
+import initialInquiriesData from '../data/inquiriesData.json';
 
 export default function Contact() {
   const { t } = useTranslation();
+  const [formData, setFormData] = useState({ name: '', company: '', phone: '', email: '', content: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.name || !formData.phone || !formData.email || !formData.content) {
+      alert('필수 입력 항목(*)을 모두 작성해주세요.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    const newInquiry = {
+      type: '기타 문의',
+      name: formData.name,
+      company: formData.company || '미입력',
+      phone: formData.phone,
+      email: formData.email,
+      content: formData.content,
+      status: '접수완료'
+    };
+
+    try {
+      const { error } = await supabase.from('inquiries').insert([newInquiry]);
+      if (!error) {
+        alert('문의가 성공적으로 접수되었습니다. 담당자 확인 후 빠르게 연락드리겠습니다.');
+        setFormData({ name: '', company: '', phone: '', email: '', content: '' });
+        setIsSubmitting(false);
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase insert error:', err);
+    }
+
+    // Local fallback
+    const stored = localStorage.getItem('encocns_inquiries');
+    const existing = stored ? JSON.parse(stored) : initialInquiriesData;
+    const updated = [{ id: Date.now(), date: new Date().toISOString().split('T')[0], ...newInquiry }, ...existing];
+    localStorage.setItem('encocns_inquiries', JSON.stringify(updated));
+
+    alert('문의가 성공적으로 접수되었습니다.');
+    setFormData({ name: '', company: '', phone: '', email: '', content: '' });
+    setIsSubmitting(false);
+  };
 
   const fadeIn = {
     hidden: { opacity: 0, y: 20 },
@@ -61,16 +107,6 @@ export default function Contact() {
                   </div>
                 </div>
 
-                {/* <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center flex-shrink-0">
-                    <RiPhoneLine size={24} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-slate-500 dark:text-slate-400 mb-1">전화번호</h3>
-                    <p className="text-slate-900 dark:text-white font-medium">02-1234-5678</p>
-                  </div>
-                </div> */}
-
                 <div className="flex gap-4">
                   <div className="w-12 h-12 bg-primary/10 text-primary rounded-xl flex items-center justify-center flex-shrink-0">
                     <RiMailSendLine size={24} />
@@ -88,37 +124,37 @@ export default function Contact() {
           <motion.div initial="hidden" animate="visible" variants={fadeIn} transition={{ delay: 0.2 }} className="w-full lg:w-2/3">
             <div className="bg-white dark:bg-slate-800 p-8 md:p-12 rounded-3xl shadow-xl border border-slate-100 dark:border-slate-700">
               <h2 className="text-2xl font-bold text-slate-900 dark:text-white mb-8">온라인 문의</h2>
-              <form className="space-y-6">
+              <form onSubmit={handleSubmit} className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">이름 / 담당자명 <span className="text-red-500">*</span></label>
-                    <input type="text" className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="홍길동" />
+                    <input type="text" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} required className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="홍길동" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">회사명</label>
-                    <input type="text" className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="(주)엔코씨엔에스" />
+                    <input type="text" value={formData.company} onChange={e => setFormData({ ...formData, company: e.target.value })} className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="(주)엔코씨엔에스" />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">연락처 <span className="text-red-500">*</span></label>
-                    <input type="tel" className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="010-0000-0000" />
+                    <input type="tel" value={formData.phone} onChange={e => setFormData({ ...formData, phone: e.target.value })} required className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="010-0000-0000" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-bold text-slate-700 dark:text-slate-300">이메일 <span className="text-red-500">*</span></label>
-                    <input type="email" className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="email@example.com" />
+                    <input type="email" value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} required className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all" placeholder="email@example.com" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-slate-700 dark:text-slate-300">문의 내용 <span className="text-red-500">*</span></label>
-                  <textarea rows={6} className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all resize-none" placeholder="여기에 문의 내용을 상세히 적어주세요."></textarea>
+                  <textarea rows={6} value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })} required className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary text-slate-900 dark:text-white transition-all resize-none" placeholder="여기에 문의 내용을 상세히 적어주세요."></textarea>
                 </div>
 
                 <div className="pt-4 flex justify-center">
-                  <button type="button" className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white font-bold text-lg px-12 py-4 rounded-full transition-colors shadow-lg shadow-primary/30">
-                    문의 접수하기
+                  <button type="submit" disabled={isSubmitting} className="w-full md:w-auto bg-primary hover:bg-primary-dark text-white font-bold text-lg px-12 py-4 rounded-full transition-colors shadow-lg shadow-primary/30 disabled:opacity-50">
+                    {isSubmitting ? '접수 중...' : '문의 접수하기'}
                   </button>
                 </div>
               </form>

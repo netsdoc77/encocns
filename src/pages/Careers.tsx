@@ -4,18 +4,32 @@ import type { Variants } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import initialCareersData from '../data/careersData.json';
 import { getBadgeColor, isJobClosed } from '../utils/badgeColors';
+import { supabase } from '../lib/supabase';
 
 export default function Careers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [careersData, setCareersData] = useState(initialCareersData);
 
   useEffect(() => {
-    const stored = localStorage.getItem('encocns_careers');
-    if (stored) {
-      setCareersData(JSON.parse(stored));
-    } else {
-      localStorage.setItem('encocns_careers', JSON.stringify(initialCareersData));
+    async function fetchCareers() {
+      try {
+        const { data, error } = await supabase.from('careers').select('*').order('id', { ascending: false });
+        if (!error && data && data.length > 0) {
+          setCareersData(data);
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase error:', err);
+      }
+
+      const stored = localStorage.getItem('encocns_careers');
+      if (stored) {
+        setCareersData(JSON.parse(stored));
+      } else {
+        localStorage.setItem('encocns_careers', JSON.stringify(initialCareersData));
+      }
     }
+    fetchCareers();
   }, []);
   const itemsPerPage = 10;
 

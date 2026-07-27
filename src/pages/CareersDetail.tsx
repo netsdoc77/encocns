@@ -4,6 +4,7 @@ import { RiArrowLeftLine, RiCloseLine, RiCheckLine } from '@remixicon/react';
 import initialCareersData from '../data/careersData.json';
 import { useEffect, useState } from 'react';
 import { getBadgeColor, isJobClosed } from '../utils/badgeColors';
+import { supabase } from '../lib/supabase';
 
 export default function CareersDetail() {
   const { id } = useParams();
@@ -15,11 +16,26 @@ export default function CareersDetail() {
   const [job, setJob] = useState<any>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem('encocns_careers');
-    const data = stored ? JSON.parse(stored) : initialCareersData;
-    const item = data.find((item: any) => item.id === Number(id));
-    setJob(item);
-    window.scrollTo(0, 0);
+    async function fetchJob() {
+      if (!id) return;
+      try {
+        const { data, error } = await supabase.from('careers').select('*').eq('id', Number(id)).single();
+        if (!error && data) {
+          setJob(data);
+          window.scrollTo(0, 0);
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase error:', err);
+      }
+
+      const stored = localStorage.getItem('encocns_careers');
+      const data = stored ? JSON.parse(stored) : initialCareersData;
+      const item = data.find((item: any) => item.id === Number(id));
+      setJob(item);
+      window.scrollTo(0, 0);
+    }
+    fetchJob();
   }, [id]);
 
   useEffect(() => {

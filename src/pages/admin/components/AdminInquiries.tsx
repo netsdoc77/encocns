@@ -1,14 +1,28 @@
 import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, INQUIRIES_KEY } from '../../../utils/storage';
 import { RiCloseLine, RiSearchLine } from '@remixicon/react';
+import { supabase } from '../../../lib/supabase';
 
 export default function AdminInquiries() {
   const [inquiries, setInquiries] = useState<any[]>([]);
   const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
   const [searchKeyword, setSearchKeyword] = useState('');
 
-  useEffect(() => {
+  const fetchInquiries = async () => {
+    try {
+      const { data, error } = await supabase.from('inquiries').select('*').order('id', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setInquiries(data);
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase error:', err);
+    }
     setInquiries(getStorageData(INQUIRIES_KEY));
+  };
+
+  useEffect(() => {
+    fetchInquiries();
   }, []);
 
   useEffect(() => {
@@ -22,7 +36,20 @@ export default function AdminInquiries() {
     };
   }, [selectedInquiry]);
 
-  const handleStatusChange = (id: number, newStatus: string) => {
+  const handleStatusChange = async (id: number, newStatus: string) => {
+    try {
+      const { error } = await supabase.from('inquiries').update({ status: newStatus }).eq('id', id);
+      if (!error) {
+        fetchInquiries();
+        if (selectedInquiry && selectedInquiry.id === id) {
+          setSelectedInquiry({ ...selectedInquiry, status: newStatus });
+        }
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase status update error:', err);
+    }
+
     const updated = inquiries.map(inq => 
       inq.id === id ? { ...inq, status: newStatus } : inq
     );

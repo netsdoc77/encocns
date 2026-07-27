@@ -2,18 +2,32 @@ import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import initialNewsData from '../data/newsData.json';
+import { supabase } from '../lib/supabase';
 
 export default function News() {
   const [currentPage, setCurrentPage] = useState(1);
   const [newsData, setNewsData] = useState(initialNewsData);
 
   useEffect(() => {
-    const stored = localStorage.getItem('encocns_news');
-    if (stored) {
-      setNewsData(JSON.parse(stored));
-    } else {
-      localStorage.setItem('encocns_news', JSON.stringify(initialNewsData));
+    async function fetchNews() {
+      try {
+        const { data, error } = await supabase.from('news').select('*').order('id', { ascending: false });
+        if (!error && data && data.length > 0) {
+          setNewsData(data);
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase error:', err);
+      }
+
+      const stored = localStorage.getItem('encocns_news');
+      if (stored) {
+        setNewsData(JSON.parse(stored));
+      } else {
+        localStorage.setItem('encocns_news', JSON.stringify(initialNewsData));
+      }
     }
+    fetchNews();
   }, []);
   const itemsPerPage = 10;
 

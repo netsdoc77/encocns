@@ -5,6 +5,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
+import { supabase } from '../../../lib/supabase';
 
 export default function AdminProjects() {
   const [projects, setProjects] = useState<any[]>([]);
@@ -15,8 +16,21 @@ export default function AdminProjects() {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
 
-  useEffect(() => {
+  const fetchProjects = async () => {
+    try {
+      const { data, error } = await supabase.from('projects').select('*').order('id', { ascending: false });
+      if (!error && data && data.length > 0) {
+        setProjects(data);
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase error:', err);
+    }
     setProjects(getStorageData(PROJECTS_KEY));
+  };
+
+  useEffect(() => {
+    fetchProjects();
   }, []);
 
   useEffect(() => {
@@ -30,8 +44,17 @@ export default function AdminProjects() {
     };
   }, [isModalOpen]);
 
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm('정말로 삭제하시겠습니까?')) {
+      try {
+        const { error } = await supabase.from('projects').delete().eq('id', id);
+        if (!error) {
+          fetchProjects();
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase delete error:', err);
+      }
       const updated = projects.filter(p => p.id !== id);
       setProjects(updated);
       setStorageData(PROJECTS_KEY, updated);
@@ -66,7 +89,7 @@ export default function AdminProjects() {
     setIsModalOpen(true);
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!startDate) {
@@ -76,6 +99,26 @@ export default function AdminProjects() {
     
     const periodStr = `${format(startDate, 'yyyy.MM')} ~ ${endDate ? format(endDate, 'yyyy.MM') : '현재'}`;
     const dataToSave = { ...formData, period: periodStr };
+
+    try {
+      if (editingId) {
+        const { error } = await supabase.from('projects').update(dataToSave).eq('id', editingId);
+        if (!error) {
+          fetchProjects();
+          setIsModalOpen(false);
+          return;
+        }
+      } else {
+        const { error } = await supabase.from('projects').insert([dataToSave]);
+        if (!error) {
+          fetchProjects();
+          setIsModalOpen(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Supabase save error:', err);
+    }
 
     let updated;
     if (editingId) {

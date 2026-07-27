@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { getStorageData, ADMIN_USERS_KEY, initializeStorage } from '../../utils/storage';
 import { RiEyeOffLine, RiEyeLine, RiArrowLeftSLine } from '@remixicon/react';
+import { supabase } from '../../lib/supabase';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -15,9 +16,26 @@ export default function AdminLogin() {
     initializeStorage();
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    try {
+      const { data, error: sbErr } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .maybeSingle();
+
+      if (!sbErr && data) {
+        sessionStorage.setItem('admin_session', JSON.stringify(data));
+        navigate('/admin/dashboard');
+        return;
+      }
+    } catch (err) {
+      console.error('Supabase auth error:', err);
+    }
 
     const users = getStorageData(ADMIN_USERS_KEY);
     const user = users.find((u: any) => u.username === username && u.password === password);
