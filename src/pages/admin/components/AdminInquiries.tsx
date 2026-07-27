@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, INQUIRIES_KEY } from '../../../utils/storage';
-import { RiCloseLine, RiSearchLine } from '@remixicon/react';
+import { RiCloseLine, RiSearchLine, RiDeleteBinLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
 
 export default function AdminInquiries() {
@@ -35,6 +35,31 @@ export default function AdminInquiries() {
       document.body.style.overflow = 'unset';
     };
   }, [selectedInquiry]);
+
+  const handleDelete = async (id: number, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (confirm('정말로 이 문의 내역을 삭제하시겠습니까?')) {
+      try {
+        const { error } = await supabase.from('inquiries').delete().eq('id', id);
+        if (!error) {
+          fetchInquiries();
+          if (selectedInquiry && selectedInquiry.id === id) {
+            setSelectedInquiry(null);
+          }
+          return;
+        }
+      } catch (err) {
+        console.error('Supabase delete error:', err);
+      }
+
+      const updated = inquiries.filter(inq => inq.id !== id);
+      setInquiries(updated);
+      setStorageData(INQUIRIES_KEY, updated);
+      if (selectedInquiry && selectedInquiry.id === id) {
+        setSelectedInquiry(null);
+      }
+    }
+  };
 
   const handleStatusChange = async (id: number, newStatus: string) => {
     try {
@@ -123,6 +148,7 @@ export default function AdminInquiries() {
               <th className="py-3 px-4 font-bold">이메일</th>
               <th className="py-3 px-4 font-bold">문의 내용</th>
               <th className="py-3 px-4 font-bold text-center">상태</th>
+              <th className="py-3 px-4 font-bold text-center">관리</th>
             </tr>
           </thead>
           <tbody>
@@ -142,6 +168,15 @@ export default function AdminInquiries() {
                 <td className="py-3 px-4 text-sm text-center">
                   {getStatusBadge(inq.status)}
                 </td>
+                <td className="py-3 px-4 text-sm text-center">
+                  <button 
+                    onClick={(e) => handleDelete(inq.id, e)}
+                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                    title="문의 삭제"
+                  >
+                    <RiDeleteBinLine size={18} />
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>
@@ -153,7 +188,7 @@ export default function AdminInquiries() {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl p-6 relative max-h-[90vh] overflow-y-auto">
             <button 
               onClick={() => setSelectedInquiry(null)}
-              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600"
+              className="absolute top-6 right-6 text-slate-400 hover:text-slate-600 cursor-pointer"
             >
               <RiCloseLine size={24} />
             </button>
@@ -198,27 +233,34 @@ export default function AdminInquiries() {
               <div className="flex gap-3">
                 <button 
                   onClick={() => handleStatusChange(selectedInquiry.id, 'pending')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${selectedInquiry.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${selectedInquiry.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 >
                   대기 중
                 </button>
                 <button 
                   onClick={() => handleStatusChange(selectedInquiry.id, 'in-progress')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${selectedInquiry.status === 'in-progress' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${selectedInquiry.status === 'in-progress' ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 >
                   처리 중
                 </button>
                 <button 
                   onClick={() => handleStatusChange(selectedInquiry.id, 'completed')}
-                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors ${selectedInquiry.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-bold transition-colors cursor-pointer ${selectedInquiry.status === 'completed' ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
                 >
                   처리 완료
                 </button>
               </div>
-              <div className="mt-8 flex justify-end">
+              <div className="mt-8 flex justify-between items-center">
+                <button 
+                  onClick={() => handleDelete(selectedInquiry.id)}
+                  className="bg-red-50 hover:bg-red-100 text-red-600 px-6 py-3 rounded-xl font-bold transition-colors border border-red-200 flex items-center gap-2 cursor-pointer text-sm"
+                >
+                  <RiDeleteBinLine size={18} />
+                  문의 삭제
+                </button>
                 <button 
                   onClick={() => setSelectedInquiry(null)}
-                  className="bg-[#5452F6] hover:bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-lg shadow-indigo-500/30"
+                  className="bg-[#5452F6] hover:bg-indigo-600 text-white px-8 py-3 rounded-xl font-bold transition-colors shadow-lg shadow-indigo-500/30 cursor-pointer"
                 >
                   확인
                 </button>
