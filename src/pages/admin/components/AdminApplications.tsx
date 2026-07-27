@@ -172,7 +172,7 @@ export default function AdminApplications() {
                       <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
                         <button
                           onClick={(e) => handleDelete(app.id, e)}
-                          className="p-1.5 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-rose-50 transition-colors cursor-pointer"
+                          className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
                           title="삭제"
                         >
                           <RiDeleteBinLine size={18} />
