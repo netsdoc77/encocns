@@ -9,16 +9,24 @@ export default function AdminInquiries() {
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const fetchInquiries = async () => {
+    let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('inquiries').select('*').order('id', { ascending: false });
-      if (!error && data && data.length > 0) {
-        setInquiries(data);
-        return;
+      if (!error && data) {
+        remoteData = data;
       }
     } catch (err) {
       console.error('Supabase error:', err);
     }
-    setInquiries(getStorageData(INQUIRIES_KEY));
+    const localData = getStorageData(INQUIRIES_KEY) || [];
+    
+    const map = new Map();
+    remoteData.forEach(item => map.set(item.id, item));
+    localData.forEach((item: any) => map.set(item.id, item));
+
+    const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
+    setInquiries(merged);
+    setStorageData(INQUIRIES_KEY, merged);
   };
 
   useEffect(() => {

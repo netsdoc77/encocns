@@ -40,36 +40,40 @@ export default function Contact() {
     }
 
     setIsSubmitting(true);
+    const todayStr = new Date().toISOString().split('T')[0];
     const newInquiry = {
+      id: Date.now(),
       type: '기타 문의',
       name: formData.name,
       company: formData.company || '미입력',
       phone: formData.phone,
       email: formData.email,
       content: formData.content,
-      status: '접수완료'
+      status: '접수완료',
+      date: todayStr
     };
 
     try {
-      const { error } = await supabase.from('inquiries').insert([newInquiry]);
-      if (!error) {
-        alert('문의가 성공적으로 접수되었습니다. 담당자 확인 후 빠르게 연락드리겠습니다.');
-        setFormData({ name: '', company: '', phone: '', email: '', content: '' });
-        setIsSubmitting(false);
-        navigate('/');
-        return;
-      }
+      await supabase.from('inquiries').insert([{
+        type: newInquiry.type,
+        name: newInquiry.name,
+        company: newInquiry.company,
+        phone: newInquiry.phone,
+        email: newInquiry.email,
+        content: newInquiry.content,
+        status: newInquiry.status
+      }]);
     } catch (err) {
       console.error('Supabase insert error:', err);
     }
 
-    // Local fallback
+    // Always update local storage as well
     const stored = localStorage.getItem('encocns_inquiries');
     const existing = stored ? JSON.parse(stored) : initialInquiriesData;
-    const updated = [{ id: Date.now(), date: new Date().toISOString().split('T')[0], ...newInquiry }, ...existing];
+    const updated = [newInquiry, ...existing];
     localStorage.setItem('encocns_inquiries', JSON.stringify(updated));
 
-    alert('문의가 성공적으로 접수되었습니다.');
+    alert('문의가 성공적으로 접수되었습니다. 담당자 확인 후 빠르게 연락드리겠습니다.');
     setFormData({ name: '', company: '', phone: '', email: '', content: '' });
     setIsSubmitting(false);
     navigate('/');
