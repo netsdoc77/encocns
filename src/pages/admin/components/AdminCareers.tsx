@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, CAREERS_KEY } from '../../../utils/storage';
-import { RiAddLine, RiDeleteBinLine, RiEditLine, RiCalendarLine } from '@remixicon/react';
+import { RiAddLine, RiDeleteBinLine, RiEditLine } from '@remixicon/react';
 import { getBadgeColor, isJobClosed } from '../../../utils/badgeColors';
 import { supabase } from '../../../lib/supabase';
 
@@ -9,7 +9,9 @@ export default function AdminCareers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ date: '', badge: '', title: '', content: '' });
-  const [selectedBadge, setSelectedBadge] = useState('');
+  const [selectedBadge, setSelectedBadge] = useState('프론트엔드');
+  const [dateOption, setDateOption] = useState<'always' | 'date' | 'custom'>('always');
+  const [selectedDate, setSelectedDate] = useState('');
 
   const fetchCareers = async () => {
     let remoteData: any[] = [];
@@ -65,6 +67,17 @@ export default function AdminCareers() {
       setEditingId(item.id);
       setFormData({ date: item.date, badge: item.badge || '', title: item.title, content: item.content });
       
+      if (!item.date || item.date === '상시채용' || item.date.includes('상시')) {
+        setDateOption('always');
+        setSelectedDate('');
+      } else if (/^\d{4}[\.-]\d{2}[\.-]\d{2}/.test(item.date)) {
+        setDateOption('date');
+        setSelectedDate(item.date.replace(/\./g, '-'));
+      } else {
+        setDateOption('custom');
+        setSelectedDate('');
+      }
+
       const defaultBadges = ['프론트엔드', '백엔드', '앱개발', '인프라/보안', '기획/PM', '디자인'];
       if (item.badge && !defaultBadges.includes(item.badge)) {
         setSelectedBadge('직접입력');
@@ -75,6 +88,8 @@ export default function AdminCareers() {
       setEditingId(null);
       setFormData({ date: '상시채용', badge: '프론트엔드', title: '', content: '' });
       setSelectedBadge('프론트엔드');
+      setDateOption('always');
+      setSelectedDate('');
     }
     setIsModalOpen(true);
   };
@@ -85,11 +100,7 @@ export default function AdminCareers() {
     const newItem = { id: newId, ...formData };
 
     try {
-      if (editingId) {
-        await supabase.from('careers').update(formData).eq('id', editingId);
-      } else {
-        await supabase.from('careers').insert([newItem]);
-      }
+      await supabase.from('careers').insert([newItem]);
     } catch (err) {
       console.error('Supabase save error:', err);
     }
@@ -173,18 +184,89 @@ export default function AdminCareers() {
             <form onSubmit={handleSave} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">마감일 (예: 2026.12.31 또는 상시채용)</label>
-                  <div className="relative">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">마감일 설정</label>
+                  <div className="flex gap-1.5 mb-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDateOption('always');
+                        setFormData({ ...formData, date: '상시채용' });
+                      }}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                        dateOption === 'always'
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      상시채용
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDateOption('date');
+                        const today = new Date().toISOString().split('T')[0];
+                        const d = selectedDate || today;
+                        setSelectedDate(d);
+                        setFormData({ ...formData, date: d.replace(/-/g, '.') });
+                      }}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                        dateOption === 'date'
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      📅 달력 선택
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setDateOption('custom');
+                        setFormData({ ...formData, date: '' });
+                      }}
+                      className={`px-2.5 py-1 text-xs font-bold rounded-lg border transition-all cursor-pointer ${
+                        dateOption === 'custom'
+                          ? 'bg-indigo-600 text-white border-indigo-600'
+                          : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                      }`}
+                    >
+                      직접입력
+                    </button>
+                  </div>
+
+                  {dateOption === 'always' && (
+                    <input
+                      type="text"
+                      readOnly
+                      value="상시채용"
+                      className="w-full px-3 py-2 border border-slate-200 rounded-lg bg-slate-50 text-sm font-semibold text-indigo-600 cursor-not-allowed"
+                    />
+                  )}
+
+                  {dateOption === 'date' && (
+                    <div className="relative">
+                      <input
+                        type="date"
+                        required
+                        value={selectedDate}
+                        onChange={(e) => {
+                          setSelectedDate(e.target.value);
+                          setFormData({ ...formData, date: e.target.value.replace(/-/g, '.') });
+                        }}
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-800 cursor-pointer"
+                      />
+                    </div>
+                  )}
+
+                  {dateOption === 'custom' && (
                     <input
                       type="text"
                       required
                       value={formData.date}
-                      onChange={(e) => setFormData({...formData, date: e.target.value})}
-                      placeholder="날짜 또는 텍스트 입력"
-                      className="w-full px-3 py-2 pl-10 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-700"
+                      onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                      placeholder="예: 2026.12.31 채용 시 마감"
+                      className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm font-medium text-slate-800"
                     />
-                    <RiCalendarLine className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={18} />
-                  </div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">직군</label>
