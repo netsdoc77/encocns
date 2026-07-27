@@ -90,109 +90,91 @@ export default function AdminApplications() {
   });
 
   return (
-    <div className="p-8">
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
       {/* Top Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 flex items-center gap-2">
-            입사지원 관리
-            <span className="text-sm font-normal text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
-              총 {filteredApps.length}건
-            </span>
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">입사 지원자 정보 및 첨부 입사지원서를 확인하고 관리합니다.</p>
-        </div>
-
-        {/* Search */}
-        <div className="relative w-full md:w-72">
-          <input
-            type="text"
-            placeholder="지원자명, 공고명, 이메일 검색"
-            value={searchKeyword}
-            onChange={(e) => setSearchKeyword(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-primary transition-all"
-          />
-          <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+      <div className="flex justify-between items-center mb-6">
+        <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+          입사지원 관리
+          <span className="text-sm font-medium text-slate-400 bg-slate-100 px-2 py-0.5 rounded-md">총 {filteredApps.length}건</span>
+        </h3>
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <input 
+              type="text" 
+              placeholder="지원자명, 공고명, 이메일 검색" 
+              value={searchKeyword}
+              onChange={(e) => setSearchKeyword(e.target.value)}
+              className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 w-64"
+            />
+            <RiSearchLine className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+          </div>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse text-sm">
-            <thead>
-              <tr className="bg-slate-50/80 border-b border-slate-200 text-slate-500 font-bold">
-                <th className="py-4 px-6">지원일시</th>
-                <th className="py-4 px-6">지원자명</th>
-                <th className="py-4 px-6">지원 공고 (포지션)</th>
-                <th className="py-4 px-6">연락처 / 이메일</th>
-                <th className="py-4 px-6">첨부파일</th>
-                <th className="py-4 px-6 text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-              {filteredApps.map((app) => {
-                const jobTitle = app.job_title || app.jobTitle || '기타';
-                const fileName = app.file_name || app.fileName;
-                const dateStr = app.created_at || app.appliedAt || '-';
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse">
+          <thead>
+            <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 text-sm">
+              <th className="py-3 px-4 font-bold">지원일시</th>
+              <th className="py-3 px-4 font-bold">지원자명</th>
+              <th className="py-3 px-4 font-bold">지원 공고 (포지션)</th>
+              <th className="py-3 px-4 font-bold">연락처 / 이메일</th>
+              <th className="py-3 px-4 font-bold">첨부파일</th>
+              <th className="py-3 px-4 font-bold text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredApps.map((app) => {
+              const jobTitle = app.job_title || app.jobTitle || '기타';
+              const fileName = app.file_name || app.fileName;
+              const dateStr = app.created_at || app.appliedAt || '-';
 
-                return (
-                  <tr 
-                    key={app.id} 
-                    onClick={() => setSelectedApp(app)}
-                    className="hover:bg-slate-50/80 transition-colors cursor-pointer group"
-                  >
-                    <td className="py-4 px-6 text-slate-500 text-xs font-mono whitespace-nowrap">
-                      {dateStr}
-                    </td>
-                    <td className="py-4 px-6 font-bold text-slate-900">
-                      {app.name}
-                    </td>
-                    <td className="py-4 px-6 font-medium text-primary">
-                      {jobTitle}
-                    </td>
-                    <td className="py-4 px-6 text-slate-600">
-                      <div className="font-semibold text-slate-800">{app.phone}</div>
-                      <div className="text-xs text-slate-400">{app.email}</div>
-                    </td>
-                    <td className="py-4 px-6">
-                      {fileName ? (
-                        <button
-                          onClick={(e) => handleDownload(app, e)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors cursor-pointer"
-                        >
-                          <RiDownloadLine size={14} className="text-primary" />
-                          <span className="max-w-[120px] truncate">{fileName}</span>
-                        </button>
-                      ) : (
-                        <span className="text-xs text-slate-400">파일 없음</span>
-                      )}
-                    </td>
-                    <td className="py-4 px-6 text-right whitespace-nowrap">
-                      <div className="flex items-center justify-end gap-2" onClick={e => e.stopPropagation()}>
-                        <button
-                          onClick={(e) => handleDelete(app.id, e)}
-                          className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
-                          title="삭제"
-                        >
-                          <RiDeleteBinLine size={18} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {filteredApps.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="py-12 text-center text-slate-400">
-                    접수된 입사지원 내역이 없습니다.
+              return (
+                <tr 
+                  key={app.id} 
+                  onClick={() => setSelectedApp(app)}
+                  className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                >
+                  <td className="py-3 px-4 text-sm text-slate-600 font-mono">{dateStr}</td>
+                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{app.name}</td>
+                  <td className="py-3 px-4 text-sm text-indigo-600 font-medium">{jobTitle}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">
+                    <div>{app.phone}</div>
+                    <div className="text-xs text-slate-400">{app.email}</div>
+                  </td>
+                  <td className="py-3 px-4 text-sm text-slate-600">
+                    {fileName ? (
+                      <button
+                        onClick={(e) => handleDownload(app, e)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded transition-colors cursor-pointer"
+                      >
+                        <RiDownloadLine size={14} className="text-indigo-500" />
+                        <span className="max-w-[120px] truncate">{fileName}</span>
+                      </button>
+                    ) : (
+                      <span className="text-xs text-slate-400">파일 없음</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-right flex justify-end gap-2" onClick={e => e.stopPropagation()}>
+                    <button
+                      onClick={(e) => handleDelete(app.id, e)}
+                      className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
+                      title="삭제"
+                    >
+                      <RiDeleteBinLine size={18} />
+                    </button>
                   </td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              );
+            })}
+            {filteredApps.length === 0 && (
+              <tr>
+                <td colSpan={6} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
 
       {/* Detail Modal */}
