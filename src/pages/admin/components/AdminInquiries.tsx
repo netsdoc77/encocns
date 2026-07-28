@@ -202,6 +202,7 @@ export default function AdminInquiries() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 text-sm">
+              <th className="py-3 px-4 font-bold w-16 text-center">번호</th>
               <th className="py-3 px-4 font-bold">접수일시</th>
               <th className="py-3 px-4 font-bold">회사명</th>
               <th className="py-3 px-4 font-bold">담당자</th>
@@ -212,12 +213,13 @@ export default function AdminInquiries() {
             </tr>
           </thead>
           <tbody>
-            {filteredInquiries.sort((a, b) => new Date(getInquiryDate(b)).getTime() - new Date(getInquiryDate(a)).getTime()).map(inq => (
+            {filteredInquiries.sort((a, b) => new Date(getInquiryDate(b)).getTime() - new Date(getInquiryDate(a)).getTime()).map((inq, index, list) => (
               <tr 
                 key={inq.id} 
                 className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                 onClick={() => setSelectedInquiry(inq)}
               >
+                <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{list.length - index}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">{formatDate(getInquiryDate(inq))}</td>
                 <td className="py-3 px-4 text-sm font-medium text-slate-800">{inq.company}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">{inq.name}</td>
@@ -239,6 +241,11 @@ export default function AdminInquiries() {
                 </td>
               </tr>
             ))}
+            {filteredInquiries.length === 0 && (
+              <tr>
+                <td colSpan={8} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

@@ -159,6 +159,7 @@ export default function AdminApplications() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 text-sm">
+              <th className="py-3 px-4 font-bold w-16 text-center">번호</th>
               <th className="py-3 px-4 font-bold">지원일시</th>
               <th className="py-3 px-4 font-bold">지원자명</th>
               <th className="py-3 px-4 font-bold">지원 공고 (포지션)</th>
@@ -168,7 +169,7 @@ export default function AdminApplications() {
             </tr>
           </thead>
           <tbody>
-            {filteredApps.map((app) => {
+            {filteredApps.map((app, index) => {
               const jobTitle = app.job_title || app.jobTitle || '기타';
               const fileName = app.file_name || app.fileName;
               const dateStr = app.created_at || app.appliedAt || '-';
@@ -179,6 +180,7 @@ export default function AdminApplications() {
                   onClick={() => setSelectedApp(app)}
                   className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                 >
+                  <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredApps.length - index}</td>
                   <td className="py-3 px-4 text-sm text-slate-600 font-mono">{dateStr}</td>
                   <td className="py-3 px-4 text-sm font-medium text-slate-800">{app.name}</td>
                   <td className="py-3 px-4 text-sm font-medium text-slate-800">{jobTitle}</td>
@@ -213,7 +215,7 @@ export default function AdminApplications() {
             })}
             {filteredApps.length === 0 && (
               <tr>
-                <td colSpan={6} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
+                <td colSpan={7} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>
             )}
           </tbody>

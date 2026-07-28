@@ -190,6 +190,7 @@ export default function AdminCareers() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 text-sm">
+              <th className="py-3 px-4 font-bold w-16 text-center">번호</th>
               <th className="py-3 px-4 font-bold">마감일</th>
               <th className="py-3 px-4 font-bold">직군</th>
               <th className="py-3 px-4 font-bold w-2/5">공고 제목</th>
@@ -197,8 +198,9 @@ export default function AdminCareers() {
             </tr>
           </thead>
           <tbody>
-            {careers.map(item => (
+            {careers.map((item, index) => (
               <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{careers.length - index}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">{item.date}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">
                   <span className={`px-2 py-1 rounded-md text-xs font-bold border ${getBadgeColor(item.badge, isJobClosed(item.date))}`}>{item.badge}</span>
@@ -224,7 +226,7 @@ export default function AdminCareers() {
             ))}
             {careers.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
+                <td colSpan={5} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>
             )}
           </tbody>

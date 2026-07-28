@@ -211,6 +211,7 @@ export default function AdminProjects() {
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 text-sm">
+              <th className="py-3 px-4 font-bold w-16 text-center">번호</th>
               <th className="py-3 px-4 font-bold">수행기간</th>
               <th className="py-3 px-4 font-bold w-1/3">프로젝트명</th>
               <th className="py-3 px-4 font-bold">고객사</th>
@@ -218,8 +219,9 @@ export default function AdminProjects() {
             </tr>
           </thead>
           <tbody>
-            {filteredProjects.map(project => (
+            {filteredProjects.map((project, index) => (
               <tr key={project.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredProjects.length - index}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">{project.period}</td>
                 <td className="py-3 px-4 text-sm font-medium text-slate-800">{project.title}</td>
                 <td className="py-3 px-4 text-sm text-slate-600">{project.client}</td>
@@ -243,7 +245,7 @@ export default function AdminProjects() {
             ))}
             {filteredProjects.length === 0 && (
               <tr>
-                <td colSpan={4} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
+                <td colSpan={5} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>
             )}
           </tbody>
