@@ -133,14 +133,14 @@ export default function AdminNews() {
       if (editingId) {
         const { error } = await supabase.from('news').update(formData).eq('id', editingId);
         if (error) {
-          const { image_url, ...dbPayload } = formData;
-          await supabase.from('news').update(dbPayload).eq('id', editingId);
+          console.error('Supabase update error:', error);
         }
       } else {
-        const { error } = await supabase.from('news').insert([newItem]);
+        const { data, error } = await supabase.from('news').insert([formData]).select();
         if (error) {
-          const { image_url, ...dbPayload } = newItem;
-          await supabase.from('news').insert([dbPayload]);
+          console.error('Supabase insert error:', error);
+        } else if (data && data[0]) {
+          newItem.id = data[0].id;
         }
       }
     } catch (err) {
