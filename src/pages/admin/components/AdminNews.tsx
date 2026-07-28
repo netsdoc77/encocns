@@ -130,7 +130,23 @@ export default function AdminNews() {
             await supabase.from('news').upsert(withId);
           }
           if (withoutId.length > 0) {
-            await supabase.from('news').insert(withoutId);
+            const { data, error } = await supabase.from('news').insert(withoutId).select();
+            if (!error && data && data.length > 0) {
+              const currentLocal = getStorageData(NEWS_KEY) || [];
+              const cleanedLocal = currentLocal.filter((item: any) => item.id < 1000000000000);
+              const map = new Map();
+              initialNewsData.forEach((i: any) => map.set(i.id, i));
+              cleanedLocal.forEach((i: any) => map.set(i.id, i));
+              data.forEach((i: any) => map.set(i.id, i));
+              const merged = Array.from(map.values()).sort((a: any, b: any) => {
+                const scoreA = getNewsDateScore(a);
+                const scoreB = getNewsDateScore(b);
+                if (scoreB !== scoreA) return scoreB - scoreA;
+                return (b.id || 0) - (a.id || 0);
+              });
+              setNews(merged);
+              setStorageData(NEWS_KEY, merged);
+            }
           }
         } catch (err) {
           console.error('Self-healing sync failed:', err);
