@@ -5,7 +5,7 @@
 /* NanumSquare 한글/ASCII 전용 유니코드 레인지 설정 (한자 U+4E00-9FFF 제외하여 한자 등장 시 프리텐다드로 즉시 자동 폴백) */
 @font-face {
   font-family: 'NanumSquareHanjaFallback';
-  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareR.woff2') format('woff2');
+  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareR.woff') format('woff');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -14,7 +14,7 @@
 
 @font-face {
   font-family: 'NanumSquareHanjaFallback';
-  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareB.woff2') format('woff2');
+  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareB.woff') format('woff');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
@@ -23,7 +23,7 @@
 
 @font-face {
   font-family: 'NanumSquareHanjaFallback';
-  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareEB.woff2') format('woff2');
+  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareEB.woff') format('woff');
   font-weight: 800;
   font-style: normal;
   font-display: swap;
