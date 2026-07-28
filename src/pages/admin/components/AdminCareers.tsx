@@ -36,7 +36,21 @@ export default function AdminCareers() {
     localData.forEach((item: any) => map.set(item.id, item));
     remoteData.forEach(item => map.set(item.id, item));
 
-    const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
+    const getCareersDateScore = (item: any) => {
+      const dateStr = item.date || item.created_at || '';
+      if (!dateStr) return 0;
+      const clean = dateStr.replace(/[^0-9]/g, '');
+      if (clean.length >= 8) return parseInt(clean.slice(0, 8));
+      const time = new Date(dateStr).getTime();
+      return isNaN(time) ? 0 : time;
+    };
+
+    const merged = Array.from(map.values()).sort((a: any, b: any) => {
+      const scoreA = getCareersDateScore(a);
+      const scoreB = getCareersDateScore(b);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return (b.id || 0) - (a.id || 0);
+    });
     setCareers(merged);
     setStorageData(CAREERS_KEY, merged);
   };

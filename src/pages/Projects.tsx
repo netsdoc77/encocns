@@ -53,7 +53,12 @@ export default function Projects() {
       localData.forEach((item: any) => map.set(item.id, item));
       remoteData.forEach(item => map.set(item.id, item));
 
-      const merged = Array.from(map.values()).sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
+      const merged = Array.from(map.values()).sort((a: any, b: any) => {
+        const scoreA = getPeriodSortScore(a.period);
+        const scoreB = getPeriodSortScore(b.period);
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return (b.id || 0) - (a.id || 0);
+      });
       setProjectData(merged);
     }
     fetchProjects();

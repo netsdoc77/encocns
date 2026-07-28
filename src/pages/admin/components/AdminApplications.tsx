@@ -24,7 +24,19 @@ export default function AdminApplications() {
     localData.forEach((item: any) => map.set(item.id, item));
     remoteData.forEach(item => map.set(item.id, item));
 
-    const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
+    const getAppDateScore = (item: any) => {
+      const dateStr = item.created_at || item.created_at_str || '';
+      if (!dateStr) return 0;
+      const time = new Date(dateStr).getTime();
+      return isNaN(time) ? 0 : time;
+    };
+
+    const merged = Array.from(map.values()).sort((a: any, b: any) => {
+      const scoreA = getAppDateScore(a);
+      const scoreB = getAppDateScore(b);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return (b.id || 0) - (a.id || 0);
+    });
     setApplications(merged);
     setStorageData(APPLICATIONS_KEY, merged);
 
