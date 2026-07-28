@@ -38,21 +38,32 @@ export default function AdminApplications() {
     
     const map = new Map();
     
-    // 1. Populate remote data from Supabase DB
+    // 1. Populate remote data from Supabase DB (primary source of truth)
     remoteData.forEach((item: any) => {
       map.set(item.id, item);
     });
 
-    // 2. Merge local data, deduplicating matching (name + phone + email + job_title)
+    // 2. Helper to check if local item matches a remote DB item
+    const isSameApplicant = (l: any, r: any) => {
+      const nameEqual = l.name && r.name && l.name.trim() === r.name.trim();
+      const emailEqual = l.email && r.email && l.email.trim().toLowerCase() === r.email.trim().toLowerCase();
+      const phoneEqual = l.phone && r.phone && l.phone.replace(/[^0-9]/g, '') === r.phone.replace(/[^0-9]/g, '');
+      const jobEqual = (l.job_id && r.job_id && String(l.job_id) === String(r.job_id)) ||
+                       (l.jobId && r.job_id && String(l.jobId) === String(r.job_id)) ||
+                       (l.job_title && r.job_title && (l.job_title.includes(r.job_title) || r.job_title.includes(l.job_title)));
+      return nameEqual && (emailEqual || phoneEqual) && (jobEqual || true);
+    };
+
+    // 3. Merge local data, deduplicating matching items into remote ID
     localData.forEach((item: any) => {
       if (map.has(item.id)) {
         const existing = map.get(item.id);
         map.set(item.id, { ...item, ...existing, file_data: existing.file_data || item.file_data || item.fileData });
       } else {
-        const key = `${item.name}_${item.phone}_${item.email}_${item.job_title || item.jobTitle}`;
-        const matchedRemote = remoteData.find(r => `${r.name}_${r.phone}_${r.email}_${r.job_title || r.jobTitle}` === key);
+        const matchedRemote = remoteData.find(r => isSameApplicant(item, r));
         if (matchedRemote) {
-          map.set(matchedRemote.id, { ...item, ...matchedRemote, file_data: matchedRemote.file_data || item.file_data || item.fileData });
+          const existing = map.get(matchedRemote.id);
+          map.set(matchedRemote.id, { ...item, ...existing, ...matchedRemote, file_data: matchedRemote.file_data || item.file_data || item.fileData });
         } else {
           map.set(item.id, item);
         }
