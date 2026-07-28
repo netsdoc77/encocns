@@ -3,6 +3,7 @@ import React from 'react';
 interface LoadingSpinnerProps {
   fullPage?: boolean;
   message?: string;
+  text?: string;
   className?: string;
 }
 
@@ -11,9 +12,12 @@ interface LoadingSpinnerProps {
  */
 export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   fullPage = false,
-  message = '데이터를 불러오는 중입니다...',
+  message,
+  text,
   className = ''
 }) => {
+  const displayMessage = text || message || '데이터를 불러오는 중입니다...';
+
   if (fullPage) {
     return (
       <div className={`w-full min-h-[60vh] flex flex-col items-center justify-center bg-transparent py-16 ${className}`}>
@@ -21,9 +25,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
           <div className="w-12 h-12 border-4 border-indigo-200 dark:border-indigo-900/50 border-t-primary rounded-full animate-spin"></div>
           <div className="absolute w-6 h-6 bg-primary/10 rounded-full animate-ping"></div>
         </div>
-        {message && (
+        {displayMessage && (
           <p className="text-sm font-medium text-slate-500 dark:text-slate-400 animate-pulse">
-            {message}
+            {displayMessage}
           </p>
         )}
       </div>
@@ -33,9 +37,9 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
   return (
     <div className={`w-full py-12 flex flex-col items-center justify-center ${className}`}>
       <div className="w-8 h-8 border-3 border-indigo-200 dark:border-indigo-900/50 border-t-primary rounded-full animate-spin mb-3"></div>
-      {message && (
+      {displayMessage && (
         <p className="text-xs font-medium text-slate-400 dark:text-slate-500">
-          {message}
+          {displayMessage}
         </p>
       )}
     </div>
