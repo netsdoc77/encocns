@@ -16,6 +16,52 @@ const getNewsDateScore = (item: any) => {
   return isNaN(time) ? 0 : time;
 };
 
+const compressBase64Image = (base64Str: string, maxWidth = 800, quality = 0.7): Promise<string> => {
+  return new Promise((resolve) => {
+    if (!base64Str || !base64Str.startsWith('data:image/')) {
+      resolve(base64Str);
+      return;
+    }
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      let width = img.width;
+      let height = img.height;
+
+      if (width > maxWidth) {
+        height = Math.round((height * maxWidth) / width);
+        width = maxWidth;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx?.drawImage(img, 0, 0, width, height);
+
+      const dataUrl = canvas.toDataURL('image/jpeg', quality);
+      resolve(dataUrl);
+    };
+    img.onerror = () => {
+      resolve(base64Str);
+    };
+  });
+};
+
+const compressImageFile = (file: File, maxWidth = 800, quality = 0.7): Promise<string> => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const base64 = event.target?.result as string;
+      compressBase64Image(base64, maxWidth, quality).then(resolve);
+    };
+    reader.onerror = () => {
+      resolve('');
+    };
+  });
+};
+
 export default function AdminNews() {
   const [news, setNews] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,13 +106,20 @@ export default function AdminNews() {
       const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
       if (unsyncedLocals.length > 0) {
         try {
-          await supabase.from('news').upsert(unsyncedLocals.map((item: any) => ({
-            id: item.id,
-            date: item.date,
-            title: item.title,
-            content: item.content,
-            image_url: item.image_url
-          })));
+          const preparedPayloads = await Promise.all(unsyncedLocals.map(async (item: any) => {
+            let imgUrl = item.image_url || '';
+            if (imgUrl.length > 100000) {
+              imgUrl = await compressBase64Image(imgUrl);
+            }
+            return {
+              id: item.id,
+              date: item.date,
+              title: item.title,
+              content: item.content,
+              image_url: imgUrl
+            };
+          }));
+          await supabase.from('news').upsert(preparedPayloads);
         } catch (err) {
           console.error('Self-healing sync failed:', err);
         }
@@ -113,30 +166,34 @@ export default function AdminNews() {
     setIsModalOpen(true);
   };
 
-  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, image_url: reader.result as string }));
-      };
-      reader.readAsDataURL(file);
+      const compressedDataUrl = await compressImageFile(file);
+      setFormData(prev => ({ ...prev, image_url: compressedDataUrl }));
     }
   };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     const newId = editingId || Date.now();
-    const newItem = { id: newId, ...formData };
+    
+    let processedImageUrl = formData.image_url;
+    if (processedImageUrl && processedImageUrl.length > 100000) {
+      processedImageUrl = await compressBase64Image(processedImageUrl);
+    }
+    
+    const payload = { ...formData, image_url: processedImageUrl };
+    const newItem = { id: newId, ...payload };
 
     try {
       if (editingId) {
-        const { error } = await supabase.from('news').update(formData).eq('id', editingId);
+        const { error } = await supabase.from('news').update(payload).eq('id', editingId);
         if (error) {
           console.error('Supabase update error:', error);
         }
       } else {
-        const { data, error } = await supabase.from('news').insert([formData]).select();
+        const { data, error } = await supabase.from('news').insert([payload]).select();
         if (error) {
           console.error('Supabase insert error:', error);
         } else if (data && data[0]) {
@@ -149,7 +206,7 @@ export default function AdminNews() {
 
     let updated;
     if (editingId) {
-      updated = news.map(n => n.id === editingId ? { ...n, ...formData } : n);
+      updated = news.map(n => n.id === editingId ? { ...n, ...payload } : n);
     } else {
       updated = [newItem, ...news];
     }
