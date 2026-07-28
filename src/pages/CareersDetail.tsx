@@ -26,6 +26,13 @@ export default function CareersDetail() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      const maxSizeBytes = 2 * 1024 * 1024; // 2MB Limit
+      if (file.size > maxSizeBytes) {
+        alert(`첨부파일 용량은 최대 2MB까지 지원됩니다.\n(선택하신 파일 용량: ${(file.size / (1024 * 1024)).toFixed(1)}MB)\n1~2MB 이하의 이력서(PDF/Word/HWP)를 첨부해 주세요.`);
+        e.target.value = '';
+        setAttachedFile(null);
+        return;
+      }
       const reader = new FileReader();
       reader.onloadend = () => {
         setAttachedFile({
