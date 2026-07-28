@@ -50,15 +50,27 @@ export default function AdminInquiries() {
       const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
       if (unsyncedLocals.length > 0) {
         try {
-          await supabase.from('inquiries').upsert(unsyncedLocals.map((item: any) => ({
-            type: item.type || '기타 문의',
-            name: item.name,
-            company: item.company || '미입력',
-            phone: item.phone,
-            email: item.email,
-            content: item.content,
-            status: item.status || '접수완료'
-          })));
+          const preparedPayloads = unsyncedLocals.map((item: any) => {
+            const payload: any = {
+              type: item.type || '기타 문의',
+              name: item.name,
+              company: item.company || '미입력',
+              phone: item.phone,
+              email: item.email,
+              content: item.content,
+              status: item.status || '접수완료'
+            };
+            if (item.id && item.id < 1000000000000) {
+              payload.id = item.id;
+            }
+            return payload;
+          });
+
+          const withId = preparedPayloads.filter((p: any) => p.id);
+          const withoutId = preparedPayloads.filter((p: any) => !p.id);
+
+          if (withId.length > 0) await supabase.from('inquiries').upsert(withId);
+          if (withoutId.length > 0) await supabase.from('inquiries').insert(withoutId);
         } catch (err) {
           console.error('Self-healing inquiries sync failed:', err);
         }

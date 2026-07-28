@@ -44,16 +44,28 @@ export default function AdminApplications() {
     const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
     if (unsyncedLocals.length > 0) {
       try {
-        await supabase.from('applications').upsert(unsyncedLocals.map((item: any) => ({
-          job_id: item.job_id || item.jobId,
-          job_title: item.job_title || item.jobTitle,
-          name: item.name,
-          email: item.email,
-          phone: item.phone,
-          intro: item.intro,
-          file_name: item.file_name || item.fileName || '',
-          file_data: item.file_data || item.fileData || ''
-        })));
+        const preparedPayloads = unsyncedLocals.map((item: any) => {
+          const payload: any = {
+            job_id: item.job_id || item.jobId,
+            job_title: item.job_title || item.jobTitle,
+            name: item.name,
+            email: item.email,
+            phone: item.phone,
+            intro: item.intro,
+            file_name: item.file_name || item.fileName || '',
+            file_data: item.file_data || item.fileData || ''
+          };
+          if (item.id && item.id < 1000000000000) {
+            payload.id = item.id;
+          }
+          return payload;
+        });
+
+        const withId = preparedPayloads.filter((p: any) => p.id);
+        const withoutId = preparedPayloads.filter((p: any) => !p.id);
+
+        if (withId.length > 0) await supabase.from('applications').upsert(withId);
+        if (withoutId.length > 0) await supabase.from('applications').insert(withoutId);
       } catch (err) {
         console.error('Self-healing applications sync failed:', err);
       }

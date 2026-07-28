@@ -111,15 +111,27 @@ export default function AdminNews() {
             if (imgUrl.length > 100000) {
               imgUrl = await compressBase64Image(imgUrl);
             }
-            return {
-              id: item.id,
+            const payload: any = {
               date: item.date,
               title: item.title,
               content: item.content,
               image_url: imgUrl
             };
+            if (item.id && item.id < 1000000000000) {
+              payload.id = item.id;
+            }
+            return payload;
           }));
-          await supabase.from('news').upsert(preparedPayloads);
+
+          const withId = preparedPayloads.filter((p: any) => p.id);
+          const withoutId = preparedPayloads.filter((p: any) => !p.id);
+
+          if (withId.length > 0) {
+            await supabase.from('news').upsert(withId);
+          }
+          if (withoutId.length > 0) {
+            await supabase.from('news').insert(withoutId);
+          }
         } catch (err) {
           console.error('Self-healing sync failed:', err);
         }

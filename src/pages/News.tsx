@@ -64,13 +64,23 @@ export default function News() {
         const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
         if (unsyncedLocals.length > 0) {
           try {
-            await supabase.from('news').upsert(unsyncedLocals.map(item => ({
-              id: item.id,
-              date: item.date,
-              title: item.title,
-              content: item.content,
-              image_url: item.image_url
-            })));
+            const preparedPayloads = unsyncedLocals.map((item: any) => {
+              const payload: any = {
+                date: item.date,
+                title: item.title,
+                content: item.content,
+                image_url: item.image_url || ''
+              };
+              if (item.id && item.id < 1000000000000) {
+                payload.id = item.id;
+              }
+              return payload;
+            });
+            const withId = preparedPayloads.filter((p: any) => p.id);
+            const withoutId = preparedPayloads.filter((p: any) => !p.id);
+
+            if (withId.length > 0) await supabase.from('news').upsert(withId);
+            if (withoutId.length > 0) await supabase.from('news').insert(withoutId);
           } catch (err) {
             console.error('Self-healing sync failed:', err);
           }
