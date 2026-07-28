@@ -121,24 +121,46 @@ export default function CareersDetail() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isSubmitting) return;
 
-    // Check duplicate application by email or phone for the current job
+    // Check duplicate application by email or phone for the current job in localStorage
     const storedApps = localStorage.getItem('encocns_applications');
     const existingApps = storedApps ? JSON.parse(storedApps) : [];
     
-    const isDuplicate = existingApps.some(
+    const cleanEmail = applicantData.email.trim().toLowerCase();
+    const cleanPhone = applicantData.phone.replace(/[^0-9]/g, '');
+
+    const isLocalDuplicate = existingApps.some(
       (app: any) => 
-        app.jobId === job.id && 
-        (app.email.trim().toLowerCase() === applicantData.email.trim().toLowerCase() ||
-         app.phone.replace(/[^0-9]/g, '') === applicantData.phone.replace(/[^0-9]/g, ''))
+        (app.job_id === job.id || app.jobId === job.id) && 
+        (app.email?.trim().toLowerCase() === cleanEmail ||
+         app.phone?.replace(/[^0-9]/g, '') === cleanPhone)
     );
 
-    if (isDuplicate) {
+    if (isLocalDuplicate) {
       alert('이미 본 채용 공고에 접수된 지원 내역(이메일 또는 연락처)이 존재합니다.');
       return;
     }
 
     setIsSubmitting(true);
+
+    // Check duplicate in Supabase DB
+    try {
+      const { data: dbApps } = await supabase.from('applications').select('id, name, email, phone, job_id').eq('job_id', job.id);
+      if (dbApps && dbApps.length > 0) {
+        const isDbDuplicate = dbApps.some(app => 
+          (app.email && app.email.trim().toLowerCase() === cleanEmail) ||
+          (app.phone && app.phone.replace(/[^0-9]/g, '') === cleanPhone)
+        );
+        if (isDbDuplicate) {
+          alert('이미 본 채용 공고에 접수된 지원 내역(이메일 또는 연락처)이 존재합니다.');
+          setIsSubmitting(false);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('Supabase duplicate check warning:', err);
+    }
     
     const now = new Date();
     const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;

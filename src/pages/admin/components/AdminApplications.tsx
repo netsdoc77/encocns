@@ -84,11 +84,33 @@ export default function AdminApplications() {
       return (b.id || 0) - (a.id || 0);
     });
 
-    setApplications(merged);
+    // 4. Deduplicate pass: Keep only 1 latest record per unique applicant (name + email/phone + job)
+    const uniqueMap = new Map();
+    merged.forEach((item: any) => {
+      const cleanName = (item.name || '').trim();
+      const cleanEmail = (item.email || '').trim().toLowerCase();
+      const cleanPhone = (item.phone || '').replace(/[^0-9]/g, '');
+      const cleanJob = item.job_id || item.jobId || (item.job_title || item.jobTitle || '').trim();
+      
+      const key = `${cleanName}_${cleanEmail || cleanPhone}_${cleanJob}`;
+      if (!uniqueMap.has(key)) {
+        uniqueMap.set(key, item);
+      } else {
+        const existing = uniqueMap.get(key);
+        const hasFile = item.file_data || item.fileData;
+        const existingHasFile = existing.file_data || existing.fileData;
+        if (hasFile && !existingHasFile) {
+          uniqueMap.set(key, { ...existing, ...item });
+        }
+      }
+    });
+
+    const finalDeduplicated = Array.from(uniqueMap.values());
+    setApplications(finalDeduplicated);
 
     // Omit heavy Base64 file_data when writing to localStorage to prevent QuotaExceededError
     try {
-      const lightStorageData = merged.map((app: any) => {
+      const lightStorageData = finalDeduplicated.map((app: any) => {
         const { file_data, fileData, ...light } = app;
         return light;
       });
