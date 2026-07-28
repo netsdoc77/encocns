@@ -2,9 +2,37 @@
 @import "https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/nanumsquare.css";
 @import "tailwindcss";
 
+/* NanumSquare 한글/ASCII 전용 유니코드 레인지 설정 (한자 U+4E00-9FFF 제외하여 한자 등장 시 프리텐다드로 즉시 자동 폴백) */
+@font-face {
+  font-family: 'NanumSquareHanjaFallback';
+  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareR.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+AC00-D7A3, U+1100-11FF, U+3130-318F, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: 'NanumSquareHanjaFallback';
+  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareB.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+AC00-D7A3, U+1100-11FF, U+3130-318F, U+3000-303F, U+FF00-FFEF;
+}
+
+@font-face {
+  font-family: 'NanumSquareHanjaFallback';
+  src: url('https://cdn.jsdelivr.net/gh/moonspam/NanumSquare@1.0/NanumSquareEB.woff2') format('woff2');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+AC00-D7A3, U+1100-11FF, U+3130-318F, U+3000-303F, U+FF00-FFEF;
+}
+
 @theme {
   --font-sans: 'PretendardVariable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-  --font-title: 'NanumSquare', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-title: 'NanumSquareHanjaFallback', 'NanumSquare', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
   --color-primary-light: #60a5fa;
@@ -42,7 +70,7 @@ html, body {
 /* 18px 이상 대형 폰트 및 제목(Header) 요소에는 나눔스퀘어 적용 (한자 미지원 글자는 프리텐다드/맑은고딕으로 자동 폴백) */
 h1, h2, h3, h4, h5, h6,
 .text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl, .text-7xl {
-  font-family: 'NanumSquare', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'NanumSquareHanjaFallback', 'NanumSquare', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* 16px 이하 본문 및 소형 텍스트에는 프리텐다드 강제 유지를 보장 */
