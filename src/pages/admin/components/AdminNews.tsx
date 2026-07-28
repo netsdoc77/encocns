@@ -49,6 +49,24 @@ export default function AdminNews() {
     const merged = Array.from(map.values()).sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
     setNews(merged);
     setStorageData(NEWS_KEY, merged);
+
+    if (remoteData.length > 0) {
+      const remoteIds = new Set(remoteData.map(r => r.id));
+      const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
+      if (unsyncedLocals.length > 0) {
+        try {
+          await supabase.from('news').upsert(unsyncedLocals.map((item: any) => ({
+            id: item.id,
+            date: item.date,
+            title: item.title,
+            content: item.content,
+            image_url: item.image_url
+          })));
+        } catch (err) {
+          console.error('Self-healing sync failed:', err);
+        }
+      }
+    }
   };
 
   useEffect(() => {

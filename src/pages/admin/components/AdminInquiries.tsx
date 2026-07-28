@@ -30,6 +30,26 @@ export default function AdminInquiries() {
     const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
     setInquiries(merged);
     setStorageData(INQUIRIES_KEY, merged);
+
+    if (remoteData.length > 0) {
+      const remoteIds = new Set(remoteData.map(r => r.id));
+      const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
+      if (unsyncedLocals.length > 0) {
+        try {
+          await supabase.from('inquiries').upsert(unsyncedLocals.map((item: any) => ({
+            type: item.type || '기타 문의',
+            name: item.name,
+            company: item.company || '미입력',
+            phone: item.phone,
+            email: item.email,
+            content: item.content,
+            status: item.status || '접수완료'
+          })));
+        } catch (err) {
+          console.error('Self-healing inquiries sync failed:', err);
+        }
+      }
+    }
   };
 
   useEffect(() => {

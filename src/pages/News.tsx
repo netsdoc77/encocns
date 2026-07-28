@@ -25,31 +25,52 @@ export default function News() {
 
   useEffect(() => {
     async function fetchNews() {
+      let remoteData: any[] = [];
       try {
         const { data, error } = await supabase.from('news').select('*');
-        if (!error && data && data.length > 0) {
-          const map = new Map();
-          initialNewsData.forEach((item: any) => map.set(item.id, item));
-          data.forEach((item: any) => {
-            if (map.has(item.id)) {
-              map.set(item.id, { ...map.get(item.id), ...item, image_url: item.image_url || map.get(item.id).image_url });
-            } else {
-              map.set(item.id, item);
-            }
-          });
-          const merged = Array.from(map.values()).sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
-          setNewsData(merged);
-          localStorage.setItem('encocns_news', JSON.stringify(merged));
-          return;
+        if (!error && data) {
+          remoteData = data;
         }
       } catch (err) {
         console.error('Supabase error:', err);
       }
 
       const stored = localStorage.getItem('encocns_news');
-      const localData = stored ? JSON.parse(stored) : initialNewsData;
-      const sorted = localData.sort((a: any, b: any) => getNewsDateScore(b) - getNewsDateScore(a));
-      setNewsData(sorted);
+      const localData: any[] = stored ? JSON.parse(stored) : [];
+
+      const map = new Map();
+      initialNewsData.forEach((item: any) => map.set(item.id, item));
+      localData.forEach((item: any) => map.set(item.id, item));
+      remoteData.forEach((item: any) => {
+        if (map.has(item.id)) {
+          map.set(item.id, { ...map.get(item.id), ...item, image_url: item.image_url || map.get(item.id).image_url });
+        } else {
+          map.set(item.id, item);
+        }
+      });
+
+      const merged = Array.from(map.values()).sort((a: any, b: any) => getNewsDateScore(b) - getNewsDateScore(a));
+      setNewsData(merged);
+      localStorage.setItem('encocns_news', JSON.stringify(merged));
+
+      // Self-healing: if localData has items not in Supabase DB, push to Supabase
+      if (remoteData.length > 0) {
+        const remoteIds = new Set(remoteData.map(r => r.id));
+        const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
+        if (unsyncedLocals.length > 0) {
+          try {
+            await supabase.from('news').upsert(unsyncedLocals.map(item => ({
+              id: item.id,
+              date: item.date,
+              title: item.title,
+              content: item.content,
+              image_url: item.image_url
+            })));
+          } catch (err) {
+            console.error('Self-healing sync failed:', err);
+          }
+        }
+      }
     }
     fetchNews();
   }, []);

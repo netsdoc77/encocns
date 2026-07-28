@@ -27,6 +27,25 @@ export default function AdminApplications() {
     const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
     setApplications(merged);
     setStorageData(APPLICATIONS_KEY, merged);
+
+    const remoteIds = new Set(remoteData.map(r => r.id));
+    const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
+    if (unsyncedLocals.length > 0) {
+      try {
+        await supabase.from('applications').upsert(unsyncedLocals.map((item: any) => ({
+          job_id: item.job_id || item.jobId,
+          job_title: item.job_title || item.jobTitle,
+          name: item.name,
+          email: item.email,
+          phone: item.phone,
+          intro: item.intro,
+          file_name: item.file_name || item.fileName || '',
+          file_data: item.file_data || item.fileData || ''
+        })));
+      } catch (err) {
+        console.error('Self-healing applications sync failed:', err);
+      }
+    }
   };
 
   useEffect(() => {
