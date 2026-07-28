@@ -28,68 +28,74 @@ export default function News() {
   useEffect(() => {
     async function fetchNews() {
       setIsLoading(true);
-      let remoteData: any[] = [];
       try {
-        const { data, error } = await supabase.from('news').select('*');
-        if (!error && data) {
-          remoteData = data;
+        let remoteData: any[] = [];
+        try {
+          const { data, error } = await supabase.from('news').select('*');
+          if (!error && data) {
+            remoteData = data;
+          }
+        } catch (err) {
+          console.error('Supabase error:', err);
         }
-      } catch (err) {
-        console.error('Supabase error:', err);
-      }
 
-      const stored = localStorage.getItem('encocns_news');
-      const localData: any[] = stored ? JSON.parse(stored) : [];
+        const stored = localStorage.getItem('encocns_news');
+        const localData: any[] = stored ? JSON.parse(stored) : [];
 
-      const map = new Map();
-      initialNewsData.forEach((item: any) => map.set(item.id, item));
-      localData.forEach((item: any) => map.set(item.id, item));
-      remoteData.forEach((item: any) => {
-        if (map.has(item.id)) {
-          const existing = map.get(item.id);
-          const bestImageUrl = (item.image_url && item.image_url.trim() !== '') ? item.image_url : (existing?.image_url || '');
-          map.set(item.id, { ...existing, ...item, image_url: bestImageUrl });
-        } else {
-          map.set(item.id, item);
-        }
-      });
+        const map = new Map();
+        initialNewsData.forEach((item: any) => map.set(item.id, item));
+        localData.forEach((item: any) => map.set(item.id, item));
+        remoteData.forEach((item: any) => {
+          if (map.has(item.id)) {
+            const existing = map.get(item.id);
+            const bestImageUrl = (item.image_url && item.image_url.trim() !== '') ? item.image_url : (existing?.image_url || '');
+            map.set(item.id, { ...existing, ...item, image_url: bestImageUrl });
+          } else {
+            map.set(item.id, item);
+          }
+        });
 
-      const merged = Array.from(map.values()).sort((a: any, b: any) => {
-        const scoreA = getNewsDateScore(a);
-        const scoreB = getNewsDateScore(b);
-        if (scoreB !== scoreA) return scoreB - scoreA;
-        return (b.id || 0) - (a.id || 0);
-      });
-      setNewsData(merged);
-      localStorage.setItem('encocns_news', JSON.stringify(merged));
+        const merged = Array.from(map.values()).sort((a: any, b: any) => {
+          const scoreA = getNewsDateScore(a);
+          const scoreB = getNewsDateScore(b);
+          if (scoreB !== scoreA) return scoreB - scoreA;
+          return (b.id || 0) - (a.id || 0);
+        });
+        setNewsData(merged);
+        localStorage.setItem('encocns_news', JSON.stringify(merged));
 
-      // Self-healing: if localData has items not in Supabase DB, push to Supabase
-      if (remoteData.length > 0) {
-        const remoteIds = new Set(remoteData.map(r => r.id));
-        const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
-        if (unsyncedLocals.length > 0) {
-          try {
-            const preparedPayloads = unsyncedLocals.map((item: any) => {
-              const payload: any = {
-                date: item.date,
-                title: item.title,
-                content: item.content,
-                image_url: item.image_url || ''
-              };
-              if (item.id && item.id < 1000000000000) {
-                payload.id = item.id;
-              }
-              return payload;
-            });
-            const withId = preparedPayloads.filter((p: any) => p.id);
-            const withoutId = preparedPayloads.filter((p: any) => !p.id);
+        // Self-healing: if localData has items not in Supabase DB, push to Supabase
+        if (remoteData.length > 0) {
+          const remoteIds = new Set(remoteData.map(r => r.id));
+          const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
+          if (unsyncedLocals.length > 0) {
+            try {
+              const preparedPayloads = unsyncedLocals.map((item: any) => {
+                const payload: any = {
+                  date: item.date,
+                  title: item.title,
+                  content: item.content,
+                  image_url: item.image_url || ''
+                };
+                if (item.id && item.id < 1000000000000) {
+                  payload.id = item.id;
+                }
+                return payload;
+              });
+              const withId = preparedPayloads.filter((p: any) => p.id);
+              const withoutId = preparedPayloads.filter((p: any) => !p.id);
 
-            if (withId.length > 0) await supabase.from('news').upsert(withId);
-            if (withoutId.length > 0) await supabase.from('news').insert(withoutId);
-          } catch (err) {
-            console.error('Self-healing sync failed:', err);
+              if (withId.length > 0) await supabase.from('news').upsert(withId);
+              if (withoutId.length > 0) await supabase.from('news').insert(withoutId);
+            } catch (err) {
+              console.error('Self-healing sync failed:', err);
+            }
           }
         }
+      } catch (err) {
+        console.error('fetchNews error:', err);
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchNews();

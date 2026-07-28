@@ -73,93 +73,99 @@ export default function AdminNews() {
 
   const fetchNews = async () => {
     setIsLoading(true);
-    let remoteData: any[] = [];
     try {
-      const { data, error } = await supabase.from('news').select('*');
-      if (!error && data) {
-        remoteData = data;
-      }
-    } catch (err) {
-      console.error('Supabase error:', err);
-    }
-    const localData = getStorageData(NEWS_KEY) || [];
-    
-    const map = new Map();
-    initialNewsData.forEach(item => map.set(item.id, item));
-    localData.forEach((item: any) => map.set(item.id, item));
-    remoteData.forEach((item: any) => {
-      if (map.has(item.id)) {
-        const existing = map.get(item.id);
-        const bestImageUrl = (item.image_url && item.image_url.trim() !== '') ? item.image_url : (existing?.image_url || '');
-        map.set(item.id, { ...existing, ...item, image_url: bestImageUrl });
-      } else {
-        map.set(item.id, item);
-      }
-    });
-
-    const merged = Array.from(map.values()).sort((a: any, b: any) => {
-      const scoreA = getNewsDateScore(a);
-      const scoreB = getNewsDateScore(b);
-      if (scoreB !== scoreA) return scoreB - scoreA;
-      return (b.id || 0) - (a.id || 0);
-    });
-    setNews(merged);
-    setStorageData(NEWS_KEY, merged);
-
-    const unsyncedLocals = Array.from(map.values()).filter((item: any) => {
-      const remoteItem = remoteData.find(r => r.id === item.id);
-      if (!remoteItem) return true;
-      if (item.image_url && (!remoteItem.image_url || remoteItem.image_url.trim() === '')) return true;
-      return false;
-    });
-
-    if (unsyncedLocals.length > 0) {
+      let remoteData: any[] = [];
       try {
-        const preparedPayloads = await Promise.all(unsyncedLocals.map(async (item: any) => {
-          let imgUrl = item.image_url || '';
-          if (imgUrl.length > 100000) {
-            imgUrl = await compressBase64Image(imgUrl);
-          }
-          const payload: any = {
-            date: item.date,
-            title: item.title,
-            content: item.content,
-            image_url: imgUrl
-          };
-          if (item.id && Number(item.id) < 1000000000000) {
-            payload.id = item.id;
-          }
-          return payload;
-        }));
-
-        const withId = preparedPayloads.filter((p: any) => p.id);
-        const withoutId = preparedPayloads.filter((p: any) => !p.id);
-
-        if (withId.length > 0) {
-          await supabase.from('news').upsert(withId);
-        }
-        if (withoutId.length > 0) {
-          const { data, error } = await supabase.from('news').insert(withoutId).select();
-          if (!error && data && data.length > 0) {
-            const currentLocal = getStorageData(NEWS_KEY) || [];
-            const cleanedLocal = currentLocal.filter((item: any) => item.id < 1000000000000);
-            const map = new Map();
-            initialNewsData.forEach((i: any) => map.set(i.id, i));
-            cleanedLocal.forEach((i: any) => map.set(i.id, i));
-            data.forEach((i: any) => map.set(i.id, i));
-            const merged = Array.from(map.values()).sort((a: any, b: any) => {
-              const scoreA = getNewsDateScore(a);
-              const scoreB = getNewsDateScore(b);
-              if (scoreB !== scoreA) return scoreB - scoreA;
-              return (b.id || 0) - (a.id || 0);
-            });
-            setNews(merged);
-            setStorageData(NEWS_KEY, merged);
-          }
+        const { data, error } = await supabase.from('news').select('*');
+        if (!error && data) {
+          remoteData = data;
         }
       } catch (err) {
-        console.error('Self-healing sync failed:', err);
+        console.error('Supabase error:', err);
       }
+      const localData = getStorageData(NEWS_KEY) || [];
+      
+      const map = new Map();
+      initialNewsData.forEach(item => map.set(item.id, item));
+      localData.forEach((item: any) => map.set(item.id, item));
+      remoteData.forEach((item: any) => {
+        if (map.has(item.id)) {
+          const existing = map.get(item.id);
+          const bestImageUrl = (item.image_url && item.image_url.trim() !== '') ? item.image_url : (existing?.image_url || '');
+          map.set(item.id, { ...existing, ...item, image_url: bestImageUrl });
+        } else {
+          map.set(item.id, item);
+        }
+      });
+
+      const merged = Array.from(map.values()).sort((a: any, b: any) => {
+        const scoreA = getNewsDateScore(a);
+        const scoreB = getNewsDateScore(b);
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return (b.id || 0) - (a.id || 0);
+      });
+      setNews(merged);
+      setStorageData(NEWS_KEY, merged);
+
+      const unsyncedLocals = Array.from(map.values()).filter((item: any) => {
+        const remoteItem = remoteData.find(r => r.id === item.id);
+        if (!remoteItem) return true;
+        if (item.image_url && (!remoteItem.image_url || remoteItem.image_url.trim() === '')) return true;
+        return false;
+      });
+
+      if (unsyncedLocals.length > 0) {
+        try {
+          const preparedPayloads = await Promise.all(unsyncedLocals.map(async (item: any) => {
+            let imgUrl = item.image_url || '';
+            if (imgUrl.length > 100000) {
+              imgUrl = await compressBase64Image(imgUrl);
+            }
+            const payload: any = {
+              date: item.date,
+              title: item.title,
+              content: item.content,
+              image_url: imgUrl
+            };
+            if (item.id && Number(item.id) < 1000000000000) {
+              payload.id = item.id;
+            }
+            return payload;
+          }));
+
+          const withId = preparedPayloads.filter((p: any) => p.id);
+          const withoutId = preparedPayloads.filter((p: any) => !p.id);
+
+          if (withId.length > 0) {
+            await supabase.from('news').upsert(withId);
+          }
+          if (withoutId.length > 0) {
+            const { data, error } = await supabase.from('news').insert(withoutId).select();
+            if (!error && data && data.length > 0) {
+              const currentLocal = getStorageData(NEWS_KEY) || [];
+              const cleanedLocal = currentLocal.filter((item: any) => item.id < 1000000000000);
+              const map = new Map();
+              initialNewsData.forEach((i: any) => map.set(i.id, i));
+              cleanedLocal.forEach((i: any) => map.set(i.id, i));
+              data.forEach((i: any) => map.set(i.id, i));
+              const merged = Array.from(map.values()).sort((a: any, b: any) => {
+                const scoreA = getNewsDateScore(a);
+                const scoreB = getNewsDateScore(b);
+                if (scoreB !== scoreA) return scoreB - scoreA;
+                return (b.id || 0) - (a.id || 0);
+              });
+              setNews(merged);
+              setStorageData(NEWS_KEY, merged);
+            }
+          }
+        } catch (err) {
+          console.error('Self-healing sync failed:', err);
+        }
+      }
+    } catch (err) {
+      console.error('fetchNews error:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
