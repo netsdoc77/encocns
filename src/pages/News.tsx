@@ -25,11 +25,22 @@ export default function News() {
 
   useEffect(() => {
     async function fetchNews() {
-      let remoteData: any[] = [];
       try {
         const { data, error } = await supabase.from('news').select('*');
-        if (!error && data) {
-          remoteData = data;
+        if (!error && data && data.length > 0) {
+          const map = new Map();
+          initialNewsData.forEach((item: any) => map.set(item.id, item));
+          data.forEach((item: any) => {
+            if (map.has(item.id)) {
+              map.set(item.id, { ...map.get(item.id), ...item, image_url: item.image_url || map.get(item.id).image_url });
+            } else {
+              map.set(item.id, item);
+            }
+          });
+          const merged = Array.from(map.values()).sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
+          setNewsData(merged);
+          localStorage.setItem('encocns_news', JSON.stringify(merged));
+          return;
         }
       } catch (err) {
         console.error('Supabase error:', err);
@@ -37,20 +48,8 @@ export default function News() {
 
       const stored = localStorage.getItem('encocns_news');
       const localData = stored ? JSON.parse(stored) : initialNewsData;
-
-      const map = new Map();
-      initialNewsData.forEach((item: any) => map.set(item.id, item));
-      localData.forEach((item: any) => map.set(item.id, item));
-      remoteData.forEach(item => {
-        if (map.has(item.id)) {
-          map.set(item.id, { ...map.get(item.id), ...item, image_url: item.image_url || map.get(item.id).image_url });
-        } else {
-          map.set(item.id, item);
-        }
-      });
-
-      const merged = Array.from(map.values()).sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
-      setNewsData(merged);
+      const sorted = localData.sort((a: any, b: any) => getNewsDateScore(b) - getNewsDateScore(a));
+      setNewsData(sorted);
     }
     fetchNews();
   }, []);
