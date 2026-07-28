@@ -33,8 +33,8 @@ export default function AdminCareers() {
     
     const map = new Map();
     initialCareersData.forEach(item => map.set(item.id, item));
-    remoteData.forEach(item => map.set(item.id, item));
     localData.forEach((item: any) => map.set(item.id, item));
+    remoteData.forEach(item => map.set(item.id, item));
 
     const merged = Array.from(map.values()).sort((a, b) => (b.id || 0) - (a.id || 0));
     setCareers(merged);

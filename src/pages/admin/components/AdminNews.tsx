@@ -37,10 +37,10 @@ export default function AdminNews() {
     
     const map = new Map();
     initialNewsData.forEach(item => map.set(item.id, item));
-    remoteData.forEach(item => map.set(item.id, item));
-    localData.forEach((item: any) => {
+    localData.forEach((item: any) => map.set(item.id, item));
+    remoteData.forEach(item => {
       if (map.has(item.id)) {
-        map.set(item.id, { ...map.get(item.id), image_url: map.get(item.id).image_url || item.image_url });
+        map.set(item.id, { ...map.get(item.id), ...item, image_url: item.image_url || map.get(item.id).image_url });
       } else {
         map.set(item.id, item);
       }

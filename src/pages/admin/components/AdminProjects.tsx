@@ -57,8 +57,8 @@ export default function AdminProjects() {
     
     const map = new Map();
     initialProjectsData.forEach(item => map.set(item.id, item));
-    remoteData.forEach(item => map.set(item.id, item));
     localData.forEach((item: any) => map.set(item.id, item));
+    remoteData.forEach(item => map.set(item.id, item));
 
     const merged = Array.from(map.values()).sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
     setProjects(merged);
