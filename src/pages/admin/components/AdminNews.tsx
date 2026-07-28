@@ -46,7 +46,12 @@ export default function AdminNews() {
       }
     });
 
-    const merged = Array.from(map.values()).sort((a, b) => getNewsDateScore(b) - getNewsDateScore(a));
+    const merged = Array.from(map.values()).sort((a: any, b: any) => {
+      const scoreA = getNewsDateScore(a);
+      const scoreB = getNewsDateScore(b);
+      if (scoreB !== scoreA) return scoreB - scoreA;
+      return (b.id || 0) - (a.id || 0);
+    });
     setNews(merged);
     setStorageData(NEWS_KEY, merged);
 
