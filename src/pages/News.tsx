@@ -39,10 +39,11 @@ export default function News() {
       const localData = stored ? JSON.parse(stored) : initialNewsData;
 
       const map = new Map();
-      remoteData.forEach(item => map.set(item.id, item));
-      localData.forEach((item: any) => {
+      initialNewsData.forEach((item: any) => map.set(item.id, item));
+      localData.forEach((item: any) => map.set(item.id, item));
+      remoteData.forEach(item => {
         if (map.has(item.id)) {
-          map.set(item.id, { ...map.get(item.id), image_url: map.get(item.id).image_url || item.image_url });
+          map.set(item.id, { ...map.get(item.id), ...item, image_url: item.image_url || map.get(item.id).image_url });
         } else {
           map.set(item.id, item);
         }

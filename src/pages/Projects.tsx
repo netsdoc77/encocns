@@ -49,8 +49,9 @@ export default function Projects() {
       const localData = stored ? JSON.parse(stored) : initialProjectData;
 
       const map = new Map();
-      remoteData.forEach(item => map.set(item.id, item));
+      initialProjectData.forEach((item: any) => map.set(item.id, item));
       localData.forEach((item: any) => map.set(item.id, item));
+      remoteData.forEach(item => map.set(item.id, item));
 
       const merged = Array.from(map.values()).sort((a, b) => getPeriodSortScore(b.period) - getPeriodSortScore(a.period));
       setProjectData(merged);
