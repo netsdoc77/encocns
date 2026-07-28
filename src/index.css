@@ -32,7 +32,7 @@
 
 @theme {
   --font-sans: 'PretendardVariable', 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
-  --font-title: 'NanumSquareHanjaFallback', 'NanumSquare', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+  --font-title: 'NanumSquareHanjaFallback', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
   --color-primary: #2563eb;
   --color-primary-dark: #1d4ed8;
   --color-primary-light: #60a5fa;
@@ -70,7 +70,7 @@ html, body {
 /* 18px 이상 대형 폰트 및 제목(Header) 요소에는 나눔스퀘어 적용 (한자 미지원 글자는 프리텐다드/맑은고딕으로 자동 폴백) */
 h1, h2, h3, h4, h5, h6,
 .text-lg, .text-xl, .text-2xl, .text-3xl, .text-4xl, .text-5xl, .text-6xl, .text-7xl {
-  font-family: 'NanumSquareHanjaFallback', 'NanumSquare', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: 'NanumSquareHanjaFallback', 'PretendardVariable', 'Pretendard', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 /* 16px 이하 본문 및 소형 텍스트에는 프리텐다드 강제 유지를 보장 */
