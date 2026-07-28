@@ -8,6 +8,19 @@ export default function AdminApplications() {
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [searchKeyword, setSearchKeyword] = useState('');
 
+  const formatDate = (rawDate: any) => {
+    if (!rawDate) return '-';
+    const date = new Date(rawDate);
+    if (isNaN(date.getTime())) return String(rawDate);
+    
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    const hh = String(date.getHours()).padStart(2, '0');
+    const min = String(date.getMinutes()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
+  };
+
   const fetchApplications = async () => {
     let remoteData: any[] = [];
     try {
@@ -21,11 +34,30 @@ export default function AdminApplications() {
     const localData = getStorageData(APPLICATIONS_KEY) || [];
     
     const map = new Map();
-    localData.forEach((item: any) => map.set(item.id, item));
-    remoteData.forEach(item => map.set(item.id, item));
+    
+    // 1. Populate remote data from Supabase DB
+    remoteData.forEach((item: any) => {
+      map.set(item.id, item);
+    });
+
+    // 2. Merge local data, deduplicating matching (name + phone + email + job_title)
+    localData.forEach((item: any) => {
+      if (map.has(item.id)) {
+        const existing = map.get(item.id);
+        map.set(item.id, { ...item, ...existing, file_data: existing.file_data || item.file_data || item.fileData });
+      } else {
+        const key = `${item.name}_${item.phone}_${item.email}_${item.job_title || item.jobTitle}`;
+        const matchedRemote = remoteData.find(r => `${r.name}_${r.phone}_${r.email}_${r.job_title || r.jobTitle}` === key);
+        if (matchedRemote) {
+          map.set(matchedRemote.id, { ...item, ...matchedRemote, file_data: matchedRemote.file_data || item.file_data || item.fileData });
+        } else {
+          map.set(item.id, item);
+        }
+      }
+    });
 
     const getAppDateScore = (item: any) => {
-      const dateStr = item.created_at || item.created_at_str || '';
+      const dateStr = item.created_at || item.created_at_str || item.appliedAt || '';
       if (!dateStr) return 0;
       const time = new Date(dateStr).getTime();
       return isNaN(time) ? 0 : time;
@@ -37,8 +69,19 @@ export default function AdminApplications() {
       if (scoreB !== scoreA) return scoreB - scoreA;
       return (b.id || 0) - (a.id || 0);
     });
+
     setApplications(merged);
-    setStorageData(APPLICATIONS_KEY, merged);
+
+    // Omit heavy Base64 file_data when writing to localStorage to prevent QuotaExceededError
+    try {
+      const lightStorageData = merged.map((app: any) => {
+        const { file_data, fileData, ...light } = app;
+        return light;
+      });
+      setStorageData(APPLICATIONS_KEY, lightStorageData);
+    } catch (err) {
+      console.warn('Storage update warning:', err);
+    }
 
     const remoteIds = new Set(remoteData.map(r => r.id));
     const unsyncedLocals = localData.filter((l: any) => l.id && !remoteIds.has(l.id));
@@ -98,7 +141,15 @@ export default function AdminApplications() {
 
       const updated = applications.filter(app => app.id !== id);
       setApplications(updated);
-      setStorageData(APPLICATIONS_KEY, updated);
+      try {
+        const lightStorageData = updated.map((app: any) => {
+          const { file_data, fileData, ...light } = app;
+          return light;
+        });
+        setStorageData(APPLICATIONS_KEY, lightStorageData);
+      } catch (err) {
+        console.warn('Storage update warning:', err);
+      }
       if (selectedApp && selectedApp.id === id) {
         setSelectedApp(null);
       }
@@ -123,13 +174,12 @@ export default function AdminApplications() {
   };
 
   const filteredApps = applications.filter(app => {
-    const term = searchKeyword.toLowerCase().trim();
-    if (!term) return true;
-    const nameMatch = app.name ? app.name.toLowerCase().includes(term) : false;
-    const titleMatch = app.job_title || app.jobTitle ? (app.job_title || app.jobTitle).toLowerCase().includes(term) : false;
-    const emailMatch = app.email ? app.email.toLowerCase().includes(term) : false;
-    const phoneMatch = app.phone ? app.phone.includes(term) : false;
-    return nameMatch || titleMatch || emailMatch || phoneMatch;
+    const searchLower = searchKeyword.toLowerCase();
+    const nameMatch = app.name ? app.name.toLowerCase().includes(searchLower) : false;
+    const jobTitle = app.job_title || app.jobTitle || '';
+    const jobMatch = jobTitle.toLowerCase().includes(searchLower);
+    const emailMatch = app.email ? app.email.toLowerCase().includes(searchLower) : false;
+    return nameMatch || jobMatch || emailMatch;
   });
 
   return (
@@ -181,7 +231,7 @@ export default function AdminApplications() {
                   className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredApps.length - index}</td>
-                  <td className="py-3 px-4 text-sm text-slate-600 font-mono">{dateStr}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600 font-mono whitespace-nowrap">{formatDate(dateStr)}</td>
                   <td className="py-3 px-4 text-sm font-medium text-slate-800">{app.name}</td>
                   <td className="py-3 px-4 text-sm font-medium text-slate-800">{jobTitle}</td>
                   <td className="py-3 px-4 text-sm text-slate-600">
@@ -248,7 +298,7 @@ export default function AdminApplications() {
             <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
               <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-3">
                 <div className="flex justify-between items-center text-xs text-slate-400 border-b border-slate-200/60 pb-2">
-                  <span>접수 일시: {selectedApp.created_at || selectedApp.appliedAt || '-'}</span>
+                  <span>접수 일시: {formatDate(selectedApp.created_at || selectedApp.appliedAt)}</span>
                   <span className="font-bold text-primary">{selectedApp.job_title || selectedApp.jobTitle}</span>
                 </div>
                 
