@@ -133,10 +133,18 @@ export default function AdminCareers() {
     const endStr = deadlineDate ? format(deadlineDate, 'yyyy.MM.dd') : '상시채용';
     const fullDateStr = `${startStr} ~ ${endStr}`;
 
-    const newItem = { id: newId, ...formData, date: fullDateStr };
+    const payload = { ...formData, date: fullDateStr };
+    const newItem = { id: newId, ...payload };
 
     try {
-      await supabase.from('careers').insert([newItem]);
+      if (editingId) {
+        await supabase.from('careers').update(payload).eq('id', editingId);
+      } else {
+        const { data, error } = await supabase.from('careers').insert([payload]).select();
+        if (!error && data && data[0]) {
+          newItem.id = data[0].id;
+        }
+      }
     } catch (err) {
       console.error('Supabase save error:', err);
     }

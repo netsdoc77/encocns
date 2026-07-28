@@ -136,13 +136,17 @@ export default function AdminProjects() {
     
     const periodStr = `${format(startDate, 'yyyy.MM')} ~ ${endDate ? format(endDate, 'yyyy.MM') : '현재'}`;
     const newId = editingId || Date.now();
-    const dataToSave = { id: newId, ...formData, period: periodStr };
+    const payload = { ...formData, period: periodStr };
+    const dataToSave = { id: newId, ...payload };
 
     try {
       if (editingId) {
-        await supabase.from('projects').update(dataToSave).eq('id', editingId);
+        await supabase.from('projects').update(payload).eq('id', editingId);
       } else {
-        await supabase.from('projects').insert([dataToSave]);
+        const { data, error } = await supabase.from('projects').insert([payload]).select();
+        if (!error && data && data[0]) {
+          dataToSave.id = data[0].id;
+        }
       }
     } catch (err) {
       console.error('Supabase save error:', err);
