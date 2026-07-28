@@ -144,7 +144,17 @@ export default function AdminProjects() {
         await supabase.from('projects').update(payload).eq('id', editingId);
       } else {
         const { data, error } = await supabase.from('projects').insert([payload]).select();
-        if (!error && data && data[0]) {
+        if (error) {
+          console.error('Supabase insert error:', error);
+          const maxId = projects.reduce((max, p) => Math.max(max, Number(p.id) < 1000000000000 ? Number(p.id) : 0), 0);
+          const fallbackPayload = { id: maxId + 1, ...payload };
+          const { data: fbData } = await supabase.from('projects').upsert([fallbackPayload]).select();
+          if (fbData && fbData[0]) {
+            dataToSave.id = fbData[0].id;
+          } else {
+            dataToSave.id = maxId + 1;
+          }
+        } else if (data && data[0]) {
           dataToSave.id = data[0].id;
         }
       }

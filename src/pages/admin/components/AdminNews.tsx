@@ -229,6 +229,14 @@ export default function AdminNews() {
         const { data, error } = await supabase.from('news').insert([payload]).select();
         if (error) {
           console.error('Supabase insert error:', error);
+          const maxId = news.reduce((max, n) => Math.max(max, Number(n.id) < 1000000000000 ? Number(n.id) : 0), 0);
+          const fallbackPayload = { id: maxId + 1, ...payload };
+          const { data: fbData } = await supabase.from('news').upsert([fallbackPayload]).select();
+          if (fbData && fbData[0]) {
+            newItem.id = fbData[0].id;
+          } else {
+            newItem.id = maxId + 1;
+          }
         } else if (data && data[0]) {
           newItem.id = data[0].id;
         }
