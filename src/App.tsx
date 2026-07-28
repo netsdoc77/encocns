@@ -11,7 +11,6 @@ import NewsDetail from './pages/NewsDetail';
 import Careers from './pages/Careers';
 import CareersDetail from './pages/CareersDetail';
 import Contact from './pages/Contact';
-import LoadingDemo from './pages/LoadingDemo';
 import AdminLogin from './pages/admin/AdminLogin';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import ScrollToTop from './components/ScrollToTop';
@@ -33,7 +32,6 @@ function App() {
           <Route path="careers" element={<Careers />} />
           <Route path="careers/:id" element={<CareersDetail />} />
           <Route path="contact" element={<Contact />} />
-          <Route path="loading-demo" element={<LoadingDemo />} />
         </Route>
         <Route path="/admin" element={<AdminLogin />} />
         <Route path="/admin/dashboard" element={<AdminDashboard />} />
