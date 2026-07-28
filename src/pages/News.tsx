@@ -43,7 +43,9 @@ export default function News() {
       localData.forEach((item: any) => map.set(item.id, item));
       remoteData.forEach((item: any) => {
         if (map.has(item.id)) {
-          map.set(item.id, { ...map.get(item.id), ...item, image_url: item.image_url || map.get(item.id).image_url });
+          const existing = map.get(item.id);
+          const bestImageUrl = (item.image_url && item.image_url.trim() !== '') ? item.image_url : (existing?.image_url || '');
+          map.set(item.id, { ...existing, ...item, image_url: bestImageUrl });
         } else {
           map.set(item.id, item);
         }
