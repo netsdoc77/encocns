@@ -32,7 +32,7 @@ const getPeriodSortScore = (period: string) => {
     endScore = year * 100 + month;
   }
 
-  return endScore * 1000000 + startScore;
+  return startScore * 1000000 + endScore;
 };
 
 export default function AdminProjects() {
