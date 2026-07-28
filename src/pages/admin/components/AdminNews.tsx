@@ -211,7 +211,12 @@ export default function AdminNews() {
       processedImageUrl = await compressBase64Image(processedImageUrl);
     }
     
-    const payload = { ...formData, image_url: processedImageUrl };
+    const payload = { 
+      date: formData.date || '',
+      title: formData.title || '',
+      content: formData.content || '',
+      image_url: processedImageUrl || '' 
+    };
     const newItem = { id: newId, ...payload };
 
     try {
