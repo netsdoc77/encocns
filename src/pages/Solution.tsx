@@ -512,7 +512,7 @@ export default function Solution() {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeIn} className="max-w-3xl mx-auto">
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white mb-10 leading-tight">이제 엔코씨앤에스와 함께<br className="hidden md:block"/> 혁신을 더하세요</h2>
             <Link to="/contact" className="bg-primary hover:bg-primary-dark text-white text-xl font-bold py-5 px-12 rounded-full shadow-2xl shadow-primary/30 transition-all duration-300 hover:scale-105 inline-flex items-center gap-3">
-              도입 문의하기 <RiArrowRightSLine size={24} />
+              문의하기 <RiArrowRightSLine size={24} />
             </Link>
           </motion.div>
         </div>
