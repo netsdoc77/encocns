@@ -7,11 +7,13 @@ import { getStorageData, setStorageData, CAREERS_KEY } from '../../../utils/stor
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiCalendarLine } from '@remixicon/react';
 import { getBadgeColor, isJobClosed } from '../../../utils/badgeColors';
 import { supabase } from '../../../lib/supabase';
+import { TableSkeletonRows } from '../../../components/common/LoadingSpinner';
 
 import initialCareersData from '../../../data/careersData.json';
 
 export default function AdminCareers() {
   const [careers, setCareers] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ date: '', badge: '', title: '', content: '' });
@@ -20,6 +22,7 @@ export default function AdminCareers() {
   const [deadlineDate, setDeadlineDate] = useState<Date | null>(null);
 
   const fetchCareers = async () => {
+    setIsLoading(true);
     let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('careers').select('*');
@@ -53,6 +56,7 @@ export default function AdminCareers() {
     });
     setCareers(merged);
     setStorageData(CAREERS_KEY, merged);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -198,33 +202,37 @@ export default function AdminCareers() {
             </tr>
           </thead>
           <tbody>
-            {careers.map((item, index) => (
-              <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{careers.length - index}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">{item.date}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">
-                  <span className={`px-2 py-1 rounded-md text-xs font-bold border ${getBadgeColor(item.badge, isJobClosed(item.date))}`}>{item.badge}</span>
-                </td>
-                <td className="py-3 px-4 text-sm font-medium text-slate-800">{item.title}</td>
-                <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
-                  <button 
-                    onClick={() => openModal(item)}
-                    className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors"
-                    title="수정"
-                  >
-                    <RiEditLine size={18} />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(item.id)}
-                    className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
-                    title="삭제"
-                  >
-                    <RiDeleteBinLine size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {careers.length === 0 && (
+            {isLoading ? (
+              <TableSkeletonRows rows={5} cols={5} />
+            ) : (
+              careers.map((item, index) => (
+                <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{careers.length - index}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">{item.date}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">
+                    <span className={`px-2 py-1 rounded-md text-xs font-bold border ${getBadgeColor(item.badge, isJobClosed(item.date))}`}>{item.badge}</span>
+                  </td>
+                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{item.title}</td>
+                  <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
+                    <button 
+                      onClick={() => openModal(item)}
+                      className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors"
+                      title="수정"
+                    >
+                      <RiEditLine size={18} />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)}
+                      className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                      title="삭제"
+                    >
+                      <RiDeleteBinLine size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+            {!isLoading && careers.length === 0 && (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>

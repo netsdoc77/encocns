@@ -2,15 +2,18 @@ import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, INQUIRIES_KEY } from '../../../utils/storage';
 import { RiCloseLine, RiSearchLine, RiDeleteBinLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
+import { TableSkeletonRows } from '../../../components/common/LoadingSpinner';
 
 import initialInquiriesData from '../../../data/inquiriesData.json';
 
 export default function AdminInquiries() {
   const [inquiries, setInquiries] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedInquiry, setSelectedInquiry] = useState<any>(null);
   const [searchKeyword, setSearchKeyword] = useState('');
 
   const fetchInquiries = async () => {
+    setIsLoading(true);
     let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('inquiries').select('*').order('id', { ascending: false });
@@ -44,6 +47,7 @@ export default function AdminInquiries() {
     });
     setInquiries(merged);
     setStorageData(INQUIRIES_KEY, merged);
+    setIsLoading(false);
 
     if (remoteData.length > 0) {
       const remoteIds = new Set(remoteData.map(r => r.id));
@@ -213,35 +217,39 @@ export default function AdminInquiries() {
             </tr>
           </thead>
           <tbody>
-            {filteredInquiries.sort((a, b) => new Date(getInquiryDate(b)).getTime() - new Date(getInquiryDate(a)).getTime()).map((inq, index, list) => (
-              <tr 
-                key={inq.id} 
-                className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
-                onClick={() => setSelectedInquiry(inq)}
-              >
-                <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{list.length - index}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">{formatDate(getInquiryDate(inq))}</td>
-                <td className="py-3 px-4 text-sm font-medium text-slate-800">{inq.company}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">{inq.name}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">{inq.email}</td>
-                <td className="py-3 px-4 text-sm text-slate-600 max-w-xs truncate">
-                  {inq.content.length > 30 ? inq.content.substring(0, 30) + '...' : inq.content}
-                </td>
-                <td className="py-3 px-4 text-sm text-center">
-                  {getStatusBadge(inq.status)}
-                </td>
-                <td className="py-3 px-4 text-sm text-center">
-                  <button 
-                    onClick={(e) => handleDelete(inq.id, e)}
-                    className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
-                    title="문의 삭제"
-                  >
-                    <RiDeleteBinLine size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredInquiries.length === 0 && (
+            {isLoading ? (
+              <TableSkeletonRows rows={5} cols={8} />
+            ) : (
+              filteredInquiries.sort((a, b) => new Date(getInquiryDate(b)).getTime() - new Date(getInquiryDate(a)).getTime()).map((inq, index, list) => (
+                <tr 
+                  key={inq.id} 
+                  className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                  onClick={() => setSelectedInquiry(inq)}
+                >
+                  <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{list.length - index}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">{formatDate(getInquiryDate(inq))}</td>
+                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{inq.company}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">{inq.name}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">{inq.email}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600 max-w-xs truncate">
+                    {inq.content && inq.content.length > 30 ? inq.content.substring(0, 30) + '...' : (inq.content || '-')}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-center">
+                    {getStatusBadge(inq.status)}
+                  </td>
+                  <td className="py-3 px-4 text-sm text-center">
+                    <button 
+                      onClick={(e) => handleDelete(inq.id, e)}
+                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      title="문의 삭제"
+                    >
+                      <RiDeleteBinLine size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+            {!isLoading && filteredInquiries.length === 0 && (
               <tr>
                 <td colSpan={8} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>

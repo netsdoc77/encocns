@@ -6,6 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 import { format } from 'date-fns';
 import { ko } from 'date-fns/locale';
 import { supabase } from '../../../lib/supabase';
+import { TableSkeletonRows } from '../../../components/common/LoadingSpinner';
 
 import initialProjectsData from '../../../data/projectsData.json';
 
@@ -31,11 +32,12 @@ const getPeriodSortScore = (period: string) => {
     endScore = year * 100 + month;
   }
 
-  return startScore * 1000000 + endScore;
+  return endScore * 1000000 + startScore;
 };
 
 export default function AdminProjects() {
   const [projects, setProjects] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -44,6 +46,7 @@ export default function AdminProjects() {
   const [endDate, setEndDate] = useState<Date | null>(null);
 
   const fetchProjects = async () => {
+    setIsLoading(true);
     let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('projects').select('*');
@@ -68,6 +71,7 @@ export default function AdminProjects() {
     });
     setProjects(merged);
     setStorageData(PROJECTS_KEY, merged);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -219,31 +223,35 @@ export default function AdminProjects() {
             </tr>
           </thead>
           <tbody>
-            {filteredProjects.map((project, index) => (
-              <tr key={project.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredProjects.length - index}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">{project.period}</td>
-                <td className="py-3 px-4 text-sm font-medium text-slate-800">{project.title}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">{project.client}</td>
-                <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
-                  <button 
-                    onClick={() => openModal(project)}
-                    className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors"
-                    title="수정"
-                  >
-                    <RiEditLine size={18} />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(project.id)}
-                    className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
-                    title="삭제"
-                  >
-                    <RiDeleteBinLine size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredProjects.length === 0 && (
+            {isLoading ? (
+              <TableSkeletonRows rows={5} cols={5} />
+            ) : (
+              filteredProjects.map((project, index) => (
+                <tr key={project.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredProjects.length - index}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">{project.period}</td>
+                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{project.title}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">{project.client}</td>
+                  <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
+                    <button 
+                      onClick={() => openModal(project)}
+                      className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors"
+                      title="수정"
+                    >
+                      <RiEditLine size={18} />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(project.id)}
+                      className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors"
+                      title="삭제"
+                    >
+                      <RiDeleteBinLine size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+            {!isLoading && filteredProjects.length === 0 && (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>

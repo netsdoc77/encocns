@@ -5,6 +5,7 @@ import initialCareersData from '../data/careersData.json';
 import { useEffect, useState } from 'react';
 import { getBadgeColor, isJobClosed } from '../utils/badgeColors';
 import { supabase } from '../lib/supabase';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 export default function CareersDetail() {
   const { id } = useParams();
@@ -84,11 +85,7 @@ export default function CareersDetail() {
   }, [isModalOpen]);
 
   if (isLoading) {
-    return (
-      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 pt-32">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <LoadingSpinner fullPage message="채용 공고 상세 내용을 불러오는 중입니다..." />;
   }
 
   if (!job) {

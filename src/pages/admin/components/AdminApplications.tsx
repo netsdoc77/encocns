@@ -2,9 +2,11 @@ import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, APPLICATIONS_KEY } from '../../../utils/storage';
 import { RiCloseLine, RiSearchLine, RiDeleteBinLine, RiDownloadLine, RiFileTextLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
+import { TableSkeletonRows } from '../../../components/common/LoadingSpinner';
 
 export default function AdminApplications() {
   const [applications, setApplications] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedApp, setSelectedApp] = useState<any>(null);
   const [searchKeyword, setSearchKeyword] = useState('');
 
@@ -22,6 +24,7 @@ export default function AdminApplications() {
   };
 
   const fetchApplications = async () => {
+    setIsLoading(true);
     let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('applications').select('*').order('id', { ascending: false });
@@ -113,6 +116,7 @@ export default function AdminApplications() {
         console.error('Self-healing applications sync failed:', err);
       }
     }
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -184,7 +188,7 @@ export default function AdminApplications() {
 
   return (
     <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
-      {/* Top Header */}
+      {/* Header & Search */}
       <div className="flex justify-between items-center mb-6">
         <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
           입사지원 관리
@@ -219,51 +223,55 @@ export default function AdminApplications() {
             </tr>
           </thead>
           <tbody>
-            {filteredApps.map((app, index) => {
-              const jobTitle = app.job_title || app.jobTitle || '기타';
-              const fileName = app.file_name || app.fileName;
-              const dateStr = app.created_at || app.appliedAt || '-';
+            {isLoading ? (
+              <TableSkeletonRows rows={5} cols={7} />
+            ) : (
+              filteredApps.map((app, index) => {
+                const jobTitle = app.job_title || app.jobTitle || '기타';
+                const fileName = app.file_name || app.fileName;
+                const dateStr = app.created_at || app.appliedAt || '-';
 
-              return (
-                <tr 
-                  key={app.id} 
-                  onClick={() => setSelectedApp(app)}
-                  className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
-                >
-                  <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredApps.length - index}</td>
-                  <td className="py-3 px-4 text-sm text-slate-600 font-mono whitespace-nowrap">{formatDate(dateStr)}</td>
-                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{app.name}</td>
-                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{jobTitle}</td>
-                  <td className="py-3 px-4 text-sm text-slate-600">
-                    <div>{app.phone}</div>
-                    <div className="text-xs text-slate-400">{app.email}</div>
-                  </td>
-                  <td className="py-3 px-4 text-sm text-slate-600">
-                    {fileName ? (
+                return (
+                  <tr 
+                    key={app.id} 
+                    onClick={() => setSelectedApp(app)}
+                    className="border-b border-slate-100 hover:bg-slate-50 transition-colors cursor-pointer"
+                  >
+                    <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredApps.length - index}</td>
+                    <td className="py-3 px-4 text-sm text-slate-600 font-mono whitespace-nowrap">{formatDate(dateStr)}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-slate-800">{app.name}</td>
+                    <td className="py-3 px-4 text-sm font-medium text-slate-800">{jobTitle}</td>
+                    <td className="py-3 px-4 text-sm text-slate-600">
+                      <div>{app.phone}</div>
+                      <div className="text-xs text-slate-400">{app.email}</div>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-slate-600">
+                      {fileName ? (
+                        <button
+                          onClick={(e) => handleDownload(app, e)}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded transition-colors cursor-pointer"
+                        >
+                          <RiDownloadLine size={14} className="text-indigo-500" />
+                          <span className="max-w-[120px] truncate">{fileName}</span>
+                        </button>
+                      ) : (
+                        <span className="text-xs text-slate-400">파일 없음</span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-right flex justify-end gap-2" onClick={e => e.stopPropagation()}>
                       <button
-                        onClick={(e) => handleDownload(app, e)}
-                        className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded transition-colors cursor-pointer"
+                        onClick={(e) => handleDelete(app.id, e)}
+                        className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
+                        title="삭제"
                       >
-                        <RiDownloadLine size={14} className="text-indigo-500" />
-                        <span className="max-w-[120px] truncate">{fileName}</span>
+                        <RiDeleteBinLine size={18} />
                       </button>
-                    ) : (
-                      <span className="text-xs text-slate-400">파일 없음</span>
-                    )}
-                  </td>
-                  <td className="py-3 px-4 text-sm text-right flex justify-end gap-2" onClick={e => e.stopPropagation()}>
-                    <button
-                      onClick={(e) => handleDelete(app.id, e)}
-                      className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
-                      title="삭제"
-                    >
-                      <RiDeleteBinLine size={18} />
-                    </button>
-                  </td>
-                </tr>
-              );
-            })}
-            {filteredApps.length === 0 && (
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+            {!isLoading && filteredApps.length === 0 && (
               <tr>
                 <td colSpan={7} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>

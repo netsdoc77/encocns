@@ -1,9 +1,10 @@
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { RiArrowLeftLine } from '@remixicon/react';
 import initialNewsData from '../data/newsData.json';
-import { useEffect, useState } from 'react';
 import { supabase } from '../lib/supabase';
+import { LoadingSpinner } from '../components/common/LoadingSpinner';
 
 export default function NewsDetail() {
   const { id } = useParams();
@@ -45,11 +46,7 @@ export default function NewsDetail() {
   }, [id]);
 
   if (isLoading) {
-    return (
-      <div className="w-full min-h-screen flex flex-col items-center justify-center bg-white dark:bg-slate-900 pt-32">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return <LoadingSpinner fullPage />;
   }
 
   if (!newsItem) {

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, NEWS_KEY } from '../../../utils/storage';
 import { RiAddLine, RiDeleteBinLine, RiEditLine, RiSearchLine } from '@remixicon/react';
 import { supabase } from '../../../lib/supabase';
+import { TableSkeletonRows } from '../../../components/common/LoadingSpinner';
 
 import initialNewsData from '../../../data/newsData.json';
 
@@ -64,12 +65,14 @@ const compressImageFile = (file: File, maxWidth = 800, quality = 0.7): Promise<s
 
 export default function AdminNews() {
   const [news, setNews] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState('');
   const [editingId, setEditingId] = useState<number | null>(null);
   const [formData, setFormData] = useState({ date: '', title: '', content: '', image_url: '' });
 
   const fetchNews = async () => {
+    setIsLoading(true);
     let remoteData: any[] = [];
     try {
       const { data, error } = await supabase.from('news').select('*');
@@ -306,37 +309,41 @@ export default function AdminNews() {
             </tr>
           </thead>
           <tbody>
-            {filteredNews.map((item, index) => (
-              <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredNews.length - index}</td>
-                <td className="py-3 px-4 text-sm text-slate-600 whitespace-nowrap">{item.date}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">
-                  {item.image_url ? (
-                    <img src={item.image_url} alt="" className="w-12 h-12 object-cover rounded-lg border border-slate-200" />
-                  ) : (
-                    <span className="text-slate-300 text-xs font-mono">-</span>
-                  )}
-                </td>
-                <td className="py-3 px-4 text-sm font-medium text-slate-800">{item.title}</td>
-                <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
-                  <button 
-                    onClick={() => openModal(item)}
-                    className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors cursor-pointer"
-                    title="수정"
-                  >
-                    <RiEditLine size={18} />
-                  </button>
-                  <button 
-                    onClick={() => handleDelete(item.id)}
-                    className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
-                    title="삭제"
-                  >
-                    <RiDeleteBinLine size={18} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {filteredNews.length === 0 && (
+            {isLoading ? (
+              <TableSkeletonRows rows={5} cols={5} />
+            ) : (
+              filteredNews.map((item, index) => (
+                <tr key={item.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  <td className="py-3 px-4 text-sm text-slate-500 font-medium text-center">{filteredNews.length - index}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600 whitespace-nowrap">{item.date}</td>
+                  <td className="py-3 px-4 text-sm text-slate-600">
+                    {item.image_url ? (
+                      <img src={item.image_url} alt="" className="w-12 h-12 object-cover rounded-lg border border-slate-200" />
+                    ) : (
+                      <span className="text-slate-300 text-xs font-mono">-</span>
+                    )}
+                  </td>
+                  <td className="py-3 px-4 text-sm font-medium text-slate-800">{item.title}</td>
+                  <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
+                    <button 
+                      onClick={() => openModal(item)}
+                      className="p-1.5 text-blue-400 hover:bg-blue-50 hover:text-blue-600 rounded transition-colors cursor-pointer"
+                      title="수정"
+                    >
+                      <RiEditLine size={18} />
+                    </button>
+                    <button 
+                      onClick={() => handleDelete(item.id)}
+                      className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
+                      title="삭제"
+                    >
+                      <RiDeleteBinLine size={18} />
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
+            {!isLoading && filteredNews.length === 0 && (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-slate-500">데이터가 없습니다.</td>
               </tr>
