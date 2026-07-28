@@ -311,7 +311,7 @@ export default function AdminNews() {
               <th className="py-3 px-4 font-bold">등록일</th>
               <th className="py-3 px-4 font-bold">이미지</th>
               <th className="py-3 px-4 font-bold w-1/2">제목</th>
-              <th className="py-3 px-4 font-bold text-right">Actions</th>
+              <th className="py-3 px-4 font-bold text-right">관리</th>
             </tr>
           </thead>
           <tbody>

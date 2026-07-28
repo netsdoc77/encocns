@@ -198,7 +198,7 @@ export default function AdminCareers() {
               <th className="py-3 px-4 font-bold">마감일</th>
               <th className="py-3 px-4 font-bold">직군</th>
               <th className="py-3 px-4 font-bold w-2/5">공고 제목</th>
-              <th className="py-3 px-4 font-bold text-right">Actions</th>
+              <th className="py-3 px-4 font-bold text-right">관리</th>
             </tr>
           </thead>
           <tbody>

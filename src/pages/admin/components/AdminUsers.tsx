@@ -120,7 +120,7 @@ export default function AdminUsers() {
               <th className="py-3 px-4 font-bold">Username</th>
               <th className="py-3 px-4 font-bold">Name</th>
               <th className="py-3 px-4 font-bold">Role</th>
-              <th className="py-3 px-4 font-bold text-right">Actions</th>
+              <th className="py-3 px-4 font-bold text-right">관리</th>
             </tr>
           </thead>
           <tbody>

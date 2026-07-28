@@ -252,7 +252,7 @@ export default function AdminApplications() {
               <th className="py-3 px-4 font-bold">지원 공고 (포지션)</th>
               <th className="py-3 px-4 font-bold">연락처 / 이메일</th>
               <th className="py-3 px-4 font-bold">첨부파일</th>
-              <th className="py-3 px-4 font-bold text-right">Actions</th>
+              <th className="py-3 px-4 font-bold text-right">관리</th>
             </tr>
           </thead>
           <tbody>

@@ -240,7 +240,7 @@ export default function AdminInquiries() {
                   <td className="py-3 px-4 text-sm text-center">
                     <button 
                       onClick={(e) => handleDelete(inq.id, e)}
-                      className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                      className="p-1.5 text-red-400 hover:bg-red-50 hover:text-red-600 rounded transition-colors cursor-pointer"
                       title="문의 삭제"
                     >
                       <RiDeleteBinLine size={18} />

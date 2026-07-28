@@ -219,7 +219,7 @@ export default function AdminProjects() {
               <th className="py-3 px-4 font-bold">수행기간</th>
               <th className="py-3 px-4 font-bold w-1/3">프로젝트명</th>
               <th className="py-3 px-4 font-bold">고객사</th>
-              <th className="py-3 px-4 font-bold text-right">Actions</th>
+              <th className="py-3 px-4 font-bold text-right">관리</th>
             </tr>
           </thead>
           <tbody>
