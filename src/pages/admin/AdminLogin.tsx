@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getStorageData, ADMIN_USERS_KEY, initializeStorage } from '../../utils/storage';
 import { RiEyeOffLine, RiEyeLine, RiArrowLeftSLine } from '@remixicon/react';
 import { supabase } from '../../lib/supabase';
+import AdminMobileGuard from '../../components/common/AdminMobileGuard';
 
 export default function AdminLogin() {
   const [username, setUsername] = useState('');
@@ -28,47 +29,49 @@ export default function AdminLogin() {
         .eq('password', password)
         .maybeSingle();
 
-      if (!sbErr && data) {
+      if (data && !sbErr) {
         sessionStorage.setItem('admin_session', JSON.stringify(data));
         navigate('/admin/dashboard');
         return;
       }
     } catch (err) {
-      console.error('Supabase auth error:', err);
+      console.error('Supabase auth check failed:', err);
     }
 
-    const users = getStorageData(ADMIN_USERS_KEY);
+    // Local fallback check
+    const users = getStorageData(ADMIN_USERS_KEY) || [];
     const user = users.find((u: any) => u.username === username && u.password === password);
 
     if (user) {
       sessionStorage.setItem('admin_session', JSON.stringify(user));
       navigate('/admin/dashboard');
     } else {
-      setError('아이디 또는 비밀번호가 일치하지 않습니다.');
+      setError('아이디 또는 비밀번호가 올바르지 않습니다.');
     }
   };
 
   return (
-    <div id="admin-root" className="min-h-screen w-full flex font-sans bg-white">
-      {/* Left Side - Blue Branding */}
-      <div className="hidden lg:flex flex-col w-1/2 bg-[#5452F6] items-end justify-center pr-24 relative">
-        <button 
-          onClick={() => navigate('/')} 
-          className="absolute top-8 left-8 flex items-center text-white/80 font-medium hover:text-white transition-colors"
-        >
-          <RiArrowLeftSLine size={24} />
-          Home page
-        </button>
-        
-        {/* Logo */}
-        <div className="flex items-center justify-center">
-          <img 
-            src={`${import.meta.env.BASE_URL}logo.png`} 
-            alt="ENCOCNS Logo" 
-            className="w-48 brightness-0 invert" 
-          />
+    <AdminMobileGuard>
+      <div id="admin-root" className="min-h-screen w-full flex font-sans bg-white">
+        {/* Left Side - Blue Branding */}
+        <div className="hidden lg:flex flex-col w-1/2 bg-[#5452F6] items-end justify-center pr-24 relative">
+          <button 
+            onClick={() => navigate('/')} 
+            className="absolute top-8 left-8 flex items-center text-white/80 font-medium hover:text-white transition-colors"
+          >
+            <RiArrowLeftSLine size={24} />
+            Home page
+          </button>
+          
+          {/* Logo */}
+          <div className="flex items-center justify-center">
+            <img 
+              src={`${import.meta.env.BASE_URL}logo.png`} 
+              alt="ENCOCNS Logo" 
+              className="w-48 brightness-0 invert" 
+            />
+          </div>
         </div>
-      </div>
 
       {/* Right Side - Login Form */}
       <div className="w-full lg:w-1/2 flex flex-col items-center lg:items-start justify-center p-8 md:p-12 lg:pl-24 relative bg-white">
@@ -148,5 +151,6 @@ export default function AdminLogin() {
         </motion.div>
       </div>
     </div>
+    </AdminMobileGuard>
   );
 }

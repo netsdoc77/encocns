@@ -9,6 +9,7 @@ import AdminCareers from './components/AdminCareers';
 import AdminInquiries from './components/AdminInquiries';
 import AdminApplications from './components/AdminApplications';
 import { initializeStorage } from '../../utils/storage';
+import AdminMobileGuard from '../../components/common/AdminMobileGuard';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState(sessionStorage.getItem('admin_active_tab') || 'users');
@@ -49,17 +50,18 @@ export default function AdminDashboard() {
   if (!adminUser) return null;
 
   return (
-    <div id="admin-root" className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
-      {/* Sidebar */}
-      <div className="w-64 bg-[#5452F6] text-white flex flex-col shadow-2xl z-20">
-        <div 
-          className="h-20 flex items-center justify-center border-b border-white/10 cursor-pointer"
-          onClick={() => handleTabChange('users')}
-        >
-          <div className="h-7 overflow-hidden flex items-start">
-            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ENCOCNS Logo" className="w-40 h-auto brightness-0 invert origin-top-left" />
+    <AdminMobileGuard>
+      <div id="admin-root" className="flex h-screen bg-slate-50 text-slate-800 font-sans overflow-hidden">
+        {/* Sidebar */}
+        <div className="w-64 bg-[#5452F6] text-white flex flex-col shadow-2xl z-20">
+          <div 
+            className="h-20 flex items-center justify-center border-b border-white/10 cursor-pointer"
+            onClick={() => handleTabChange('users')}
+          >
+            <div className="h-7 overflow-hidden flex items-start">
+              <img src={`${import.meta.env.BASE_URL}logo.png`} alt="ENCOCNS Logo" className="w-40 h-auto brightness-0 invert origin-top-left" />
+            </div>
           </div>
-        </div>
         
         <div className="px-6 py-6 border-b border-white/10">
           <div className="flex items-center gap-3">
@@ -145,5 +147,6 @@ export default function AdminDashboard() {
         </main>
       </div>
     </div>
+    </AdminMobileGuard>
   );
 }
