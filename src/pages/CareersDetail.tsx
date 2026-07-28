@@ -28,7 +28,7 @@ export default function CareersDetail() {
     if (file) {
       const maxSizeBytes = 2 * 1024 * 1024; // 2MB Limit
       if (file.size > maxSizeBytes) {
-        alert(`첨부파일 용량은 최대 2MB까지 지원됩니다.\n(선택하신 파일 용량: ${(file.size / (1024 * 1024)).toFixed(1)}MB)\n1~2MB 이하의 이력서(PDF/Word/HWP)를 첨부해 주세요.`);
+        alert(`첨부파일 용량은 최대 2MB까지 지원됩니다.\n(선택하신 파일 용량: ${(file.size / (1024 * 1024)).toFixed(1)}MB)\n2MB 이하의 파일(PDF, Word, HWP, Excel, PPT, ZIP)을 첨부해 주세요.`);
         e.target.value = '';
         setAttachedFile(null);
         return;
@@ -345,11 +345,11 @@ export default function CareersDetail() {
                     <input 
                       type="file" 
                       required 
-                      accept=".pdf,.doc,.docx"
+                      accept=".pdf,.doc,.docx,.hwp,.hwpx,.xls,.xlsx,.ppt,.pptx,.zip,.rar,.7z"
                       onChange={handleFileChange}
                       className="w-full text-sm text-slate-500 dark:text-slate-400 file:mr-4 file:py-2.5 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
                     />
-                    <p className="text-xs text-slate-500 mt-2">PDF, DOC, DOCX 형식만 가능 (최대 10MB)</p>
+                    <p className="text-xs text-slate-500 mt-2">PDF, Word, HWP, 엑셀(XLSX), PPT, 압축파일(ZIP) 형식 지원 (최대 2MB)</p>
                   </div>
 
                   <div className="mt-4 flex gap-3">
