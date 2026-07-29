@@ -136,9 +136,10 @@ export default function AdminUsers() {
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map(user => (
+            {filteredUsers.map((user, index) => (
               <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                <td className="py-3 px-4 text-sm text-slate-600">{user.id}</td>
+                {/* 목록 순번 (DB 고유 ID 대신 일련번호 표시) */}
+                <td className="py-3 px-4 text-sm text-slate-600">{filteredUsers.length - index}</td>
                 <td className="py-3 px-4 text-sm font-medium text-slate-800">{user.username}</td>
                 {/* 사용자 이름 (슈퍼관리자 표기 시 최영환으로 보완 표시) */}
                 <td className="py-3 px-4 text-sm text-slate-600">
