@@ -69,8 +69,13 @@ export default function AdminDashboard() {
               {adminUser.username.charAt(0).toUpperCase()}
             </div>
             <div>
-              <div className="text-sm font-bold">{adminUser.name}</div>
-              <div className="text-xs text-white/70">{adminUser.role}</div>
+              {/* 어드민 프로필 이름 및 역할 정보 (슈퍼관리자인 경우 최영환으로 표시) */}
+              <div className="text-sm font-bold">
+                {adminUser.name === '슈퍼관리자' ? '최영환' : adminUser.name}
+              </div>
+              <div className="text-xs text-white/70">
+                {adminUser.role === 'admin' ? '수퍼관리자' : adminUser.role}
+              </div>
             </div>
           </div>
         </div>

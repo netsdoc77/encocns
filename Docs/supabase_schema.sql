@@ -82,10 +82,10 @@ CREATE POLICY "Allow public read admin_users" ON public.admin_users FOR ALL USIN
 -- 초기 데이터 주입 (Initial Seed Data)
 -- ========================================================
 
--- 어드민 계정 데이터
+-- 어드민 계정 데이터 (이름: 최영환, 역할: 수퍼관리자)
 INSERT INTO public.admin_users (username, password, name, role)
-VALUES ('encocns2011', '12345678', '슈퍼관리자', 'admin')
-ON CONFLICT (username) DO NOTHING;
+VALUES ('encocns2011', '12345678', '최영환', '수퍼관리자')
+ON CONFLICT (username) DO UPDATE SET name = '최영환', role = '수퍼관리자';
 
 -- 프로젝트 초기 데이터
 INSERT INTO public.projects (period, title, client, description) VALUES

@@ -13,6 +13,17 @@ export default function AdminUsers() {
     try {
       const { data, error } = await supabase.from('admin_users').select('*').order('id', { ascending: false });
       if (!error && data && data.length > 0) {
+        // DB 데이터 중 '슈퍼관리자'가 남아있는 경우 '최영환'으로 자동 업데이트 시도
+        const needUpdate = data.find(u => u.username === 'encocns2011' && u.name === '슈퍼관리자');
+        if (needUpdate) {
+          await supabase.from('admin_users').update({ name: '최영환', role: '수퍼관리자' }).eq('username', 'encocns2011');
+          data.forEach(u => {
+            if (u.username === 'encocns2011') {
+              u.name = '최영환';
+              u.role = '수퍼관리자';
+            }
+          });
+        }
         setUsers(data);
         return;
       }
@@ -114,12 +125,13 @@ export default function AdminUsers() {
 
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
+          {/* 사용자 관리 목록 테이블 헤더 */}
           <thead>
             <tr className="bg-slate-50 border-y border-slate-200 text-slate-500 text-sm">
-              <th className="py-3 px-4 font-bold">ID</th>
-              <th className="py-3 px-4 font-bold">Username</th>
-              <th className="py-3 px-4 font-bold">Name</th>
-              <th className="py-3 px-4 font-bold">Role</th>
+              <th className="py-3 px-4 font-bold">번호</th>
+              <th className="py-3 px-4 font-bold">아이디</th>
+              <th className="py-3 px-4 font-bold">이름</th>
+              <th className="py-3 px-4 font-bold">역할</th>
               <th className="py-3 px-4 font-bold text-right">관리</th>
             </tr>
           </thead>
@@ -128,9 +140,15 @@ export default function AdminUsers() {
               <tr key={user.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                 <td className="py-3 px-4 text-sm text-slate-600">{user.id}</td>
                 <td className="py-3 px-4 text-sm font-medium text-slate-800">{user.username}</td>
-                <td className="py-3 px-4 text-sm text-slate-600">{user.name}</td>
+                {/* 사용자 이름 (슈퍼관리자 표기 시 최영환으로 보완 표시) */}
                 <td className="py-3 px-4 text-sm text-slate-600">
-                  <span className="bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs">{user.role}</span>
+                  {user.name === '슈퍼관리자' ? '최영환' : user.name}
+                </td>
+                <td className="py-3 px-4 text-sm text-slate-600">
+                  {/* 역할 표기: admin인 경우 수퍼관리자로 표시 */}
+                  <span className="bg-slate-200 text-slate-700 px-2 py-1 rounded text-xs">
+                    {user.role === 'admin' ? '수퍼관리자' : user.role}
+                  </span>
                 </td>
                 <td className="py-3 px-4 text-sm text-right flex justify-end gap-2">
                   <button 

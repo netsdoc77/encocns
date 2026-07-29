@@ -10,14 +10,29 @@ export const CAREERS_KEY = 'encocns_careers';
 export const INQUIRIES_KEY = 'encocns_inquiries';
 export const APPLICATIONS_KEY = 'encocns_applications';
 
-// Mock initial admin user
+// 초기 어드민 계정 데이터 (이름: 최영환, 역할: 수퍼관리자)
 const initialAdminUsers = [
-  { id: 1, username: 'encocns2011', password: '12345678', name: '슈퍼관리자', role: 'admin' }
+  { id: 1, username: 'encocns2011', password: '12345678', name: '최영환', role: '수퍼관리자' }
 ];
 
 export const initializeStorage = () => {
-  if (!localStorage.getItem(ADMIN_USERS_KEY)) {
+  const existingUsers = localStorage.getItem(ADMIN_USERS_KEY);
+  if (!existingUsers) {
     localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(initialAdminUsers));
+  } else {
+    // 기존에 저장된 데이터의 '슈퍼관리자' 또는 'admin' 역할을 '최영환' 및 '수퍼관리자'로 갱신
+    try {
+      const parsed = JSON.parse(existingUsers);
+      const updated = parsed.map((u: any) => {
+        if (u.username === 'encocns2011') {
+          return { ...u, name: '최영환', role: '수퍼관리자' };
+        }
+        return u;
+      });
+      localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(updated));
+    } catch (e) {
+      localStorage.setItem(ADMIN_USERS_KEY, JSON.stringify(initialAdminUsers));
+    }
   }
   if (!localStorage.getItem(PROJECTS_KEY)) {
     localStorage.setItem(PROJECTS_KEY, JSON.stringify(initialProjectData));
